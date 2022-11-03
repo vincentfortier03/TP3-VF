@@ -19,7 +19,9 @@ public class Simulation implements Serializable {
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
-//todo
+        if(t >= 0 || dt > 0){
+
+        }
 
 
         return nouvelEtat;
