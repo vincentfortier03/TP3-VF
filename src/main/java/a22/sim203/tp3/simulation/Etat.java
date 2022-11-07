@@ -32,6 +32,11 @@ public class Etat implements Serializable {
         }
     }
 
+    public Etat(){
+        this.variableList = new ArrayList<>();
+
+    }
+
 
     public List<Variable> getVariableList() {
         return variableList;

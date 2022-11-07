@@ -19,10 +19,20 @@ public class Simulation implements Serializable {
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
+        List<Function> functionList = null;
+
         if(t >= 0 || dt > 0){
+            for(Variable variableList : etatActuel.getVariableList()){
+                if(variableList.getEquationsCollection().size() != 0){
+                    for(Equation eq : variableList.getEquationsCollection()){
+                        nouvelEtat.getVariable(variableList.getName()).setValue();
 
+                    }
+                    nouvelEtat.getVariable(variableList.getName()).getValue();
+                }
+            }
+            historique.add(nouvelEtat);
         }
-
 
         return nouvelEtat;
     }
@@ -76,6 +86,29 @@ public class Simulation implements Serializable {
 
     public void setHistorique(List<Etat> historique) {
         this.historique = historique;
+    }
+
+    public static void main(String[] args) {
+        Etat etatTest = new Etat();
+        Equation equation = new Equation("test", "f(x,y,z)=x+y+z");
+
+        etatTest.addVariable(new Variable("x", 20));
+        etatTest.addVariable(new Variable("y", 8));
+        etatTest.addVariable(new Variable("z", 3));
+        etatTest.getVariable("x").ajouteEquation(equation);
+        etatTest.getVariable("y").ajouteEquation(equation);
+        etatTest.getVariable("z").ajouteEquation(equation);
+
+        Simulation sim = new Simulation();
+        System.out.println(etatTest.toString());
+
+
+        System.out.println(sim.simulateStep(20,0.5,etatTest).toString());
+        System.out.println(sim.simulateStep(20.5,0.5,etatTest).toString());
+        System.out.println(sim.simulateStep(21,0.5,etatTest).toString());
+        System.out.println(sim.simulateStep(21.5,0.5,etatTest).toString());
+
+
     }
 
 }
