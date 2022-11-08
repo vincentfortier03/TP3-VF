@@ -19,20 +19,43 @@ public class Simulation implements Serializable {
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
-        List<Function> functionList = null;
+        List<Variable> oldVars = etatActuel.getVariableList();
+        List<Variable> newVars = new ArrayList<>();
 
-        if(t >= 0 || dt > 0){
-            for(Variable variableList : etatActuel.getVariableList()){
-                if(variableList.getEquationsCollection().size() != 0){
-                    for(Equation eq : variableList.getEquationsCollection()){
-                        nouvelEtat.getVariable(variableList.getName()).setValue();
+        ajouteDansHistorique(etatActuel);
 
-                    }
-                    nouvelEtat.getVariable(variableList.getName()).getValue();
-                }
+        for(int i = 0; i < oldVars.size(); i++){
+            Variable oldVarActuelle = oldVars.get(i);
+            Variable newVarActuelle = new Variable(oldVarActuelle);
+            newVars.add(newVarActuelle);
+            for(int j = 0; j < oldVarActuelle.getEquationsCollection().size(); j++){
+                List<Function> listeOldFct = convertEquationsToFunctions(oldVarActuelle.getEquationsCollection());
+                newVars.get(i).ajouteEquation(oldVarActuelle.getEquationsMap().get(newVarActuelle.getName()));
+                newVarActuelle.setValue(listeOldFct.get(j).calculate(listeOldFct.get(j).getArgument(newVarActuelle.getName())));
+                System.out.println(newVarActuelle.getValue());
             }
-            historique.add(nouvelEtat);
         }
+
+
+
+//        if(t >= 0 || dt > 0){
+//            for(Variable variableActuelle : etatActuel.getVariableList()){
+//                vars.add(new Variable(variableActuelle));
+//                if(variableActuelle.getEquationsCollection().size() != 0){
+//                    List<Function> fonctionsFromEquationsActuelles = convertEquationsToFunctions(variableActuelle.getEquationsCollection());
+//                    for(Equation equationActuelle : variableActuelle.getEquationsCollection()){
+//                        for(Function eq : fonctionsFromEquationsActuelles){
+//                            for(Variable variableNouvelEtat : vars){
+//                                variableNouvelEtat.ajouteEquation(new Equation(equationActuelle));
+//                                variableNouvelEtat.setValue(eq.calculate(eq.getArgument(equationActuelle.getName())));
+//                            }
+//                        }
+//                    }
+//                }
+//
+//            }
+//            nouvelEtat.setVariableList(vars);
+//        }
 
         return nouvelEtat;
     }
