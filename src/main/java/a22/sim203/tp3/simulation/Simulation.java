@@ -19,43 +19,23 @@ public class Simulation implements Serializable {
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
-        List<Variable> oldVars = etatActuel.getVariableList();
         List<Variable> newVars = new ArrayList<>();
 
         ajouteDansHistorique(etatActuel);
 
-        for(int i = 0; i < oldVars.size(); i++){
-            Variable oldVarActuelle = oldVars.get(i);
-            Variable newVarActuelle = new Variable(oldVarActuelle);
-            newVars.add(newVarActuelle);
-            for(int j = 0; j < oldVarActuelle.getEquationsCollection().size(); j++){
-                List<Function> listeOldFct = convertEquationsToFunctions(oldVarActuelle.getEquationsCollection());
-                newVars.get(i).ajouteEquation(oldVarActuelle.getEquationsMap().get(newVarActuelle.getName()));
-                newVarActuelle.setValue(listeOldFct.get(j).calculate(listeOldFct.get(j).getArgument(newVarActuelle.getName())));
-                System.out.println(newVarActuelle.getValue());
+        for (int i = 0; i < etatActuel.getVariableList().size(); i++) {
+            for (Equation equationOld : etatActuel.getVariableList().get(i).getEquationsCollection()) {
+                Function fctActuelle = convertEquationToFunction(equationOld);
+                Argument[] listValuesArguments = new Argument[fctActuelle.getArgumentsNumber()];
+
+                for (int j = 0; j < fctActuelle.getArgumentsNumber(); j++) {
+                    listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
+                }
+               nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
             }
         }
 
-
-
-//        if(t >= 0 || dt > 0){
-//            for(Variable variableActuelle : etatActuel.getVariableList()){
-//                vars.add(new Variable(variableActuelle));
-//                if(variableActuelle.getEquationsCollection().size() != 0){
-//                    List<Function> fonctionsFromEquationsActuelles = convertEquationsToFunctions(variableActuelle.getEquationsCollection());
-//                    for(Equation equationActuelle : variableActuelle.getEquationsCollection()){
-//                        for(Function eq : fonctionsFromEquationsActuelles){
-//                            for(Variable variableNouvelEtat : vars){
-//                                variableNouvelEtat.ajouteEquation(new Equation(equationActuelle));
-//                                variableNouvelEtat.setValue(eq.calculate(eq.getArgument(equationActuelle.getName())));
-//                            }
-//                        }
-//                    }
-//                }
-//
-//            }
-//            nouvelEtat.setVariableList(vars);
-//        }
+        System.out.println(nouvelEtat.getVariableList().get(0));
 
         return nouvelEtat;
     }
@@ -113,25 +93,17 @@ public class Simulation implements Serializable {
 
     public static void main(String[] args) {
         Etat etatTest = new Etat();
-        Equation equation = new Equation("test", "f(x,y,z)=x+y+z");
+        Equation equation = new Equation("test", "f(x)=x+1");
 
         etatTest.addVariable(new Variable("x", 20));
-        etatTest.addVariable(new Variable("y", 8));
-        etatTest.addVariable(new Variable("z", 3));
         etatTest.getVariable("x").ajouteEquation(equation);
-        etatTest.getVariable("y").ajouteEquation(equation);
-        etatTest.getVariable("z").ajouteEquation(equation);
+
 
         Simulation sim = new Simulation();
-        System.out.println(etatTest.toString());
-
-
-        System.out.println(sim.simulateStep(20,0.5,etatTest).toString());
-        System.out.println(sim.simulateStep(20.5,0.5,etatTest).toString());
-        System.out.println(sim.simulateStep(21,0.5,etatTest).toString());
-        System.out.println(sim.simulateStep(21.5,0.5,etatTest).toString());
 
 
     }
+
+
 
 }
