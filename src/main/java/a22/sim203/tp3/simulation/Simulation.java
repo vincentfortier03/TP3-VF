@@ -4,17 +4,17 @@ import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.*;
+
 
 public class Simulation implements Serializable {
 
     private String name;
     private List<Etat> historique = new ArrayList<>();// l'état 0 est le premier état de l'historique
 
-    public Simulation() {
-//todo
-
-
+    public Simulation(String name) {
+        this.name = name;
     }
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
@@ -34,8 +34,6 @@ public class Simulation implements Serializable {
             }
         }
 
-        System.out.println(nouvelEtat.getVariableList().get(0));
-
         return nouvelEtat;
     }
 
@@ -54,8 +52,10 @@ public class Simulation implements Serializable {
 
     public Etat getHistorique(int step) {
         Etat retEtat = null;
-//todo
 
+        if(step <= historique.size()){
+            retEtat = historique.get(step);
+        }
 
         return retEtat;
     }
@@ -91,18 +91,22 @@ public class Simulation implements Serializable {
     }
 
     public static void main(String[] args) {
+
         Etat etatTest = new Etat();
         Equation equation = new Equation("test", "f(x)=x+1");
 
         etatTest.addVariable(new Variable("x", 20));
         etatTest.getVariable("x").ajouteEquation(equation);
 
+        Simulation sim = new Simulation("test");
 
-        Simulation sim = new Simulation();
+        Etat nvEtat = sim.simulateStep(0,1,etatTest);
+        System.out.println(etatTest);
+        System.out.println(nvEtat);
+        nvEtat = sim.simulateStep(1,1, nvEtat);
+        System.out.println(nvEtat);
+        nvEtat = sim.simulateStep(2,1, nvEtat);
+        System.out.println(nvEtat);
 
-        System.out.println(sim.simulateStep(0,5,etatTest));
     }
-
-
-
 }
