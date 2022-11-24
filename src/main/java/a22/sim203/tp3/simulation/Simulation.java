@@ -19,7 +19,6 @@ public class Simulation implements Serializable {
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
-        List<Variable> newVars = new ArrayList<>();
 
         ajouteDansHistorique(etatActuel);
 
@@ -101,7 +100,7 @@ public class Simulation implements Serializable {
 
         Simulation sim = new Simulation();
 
-
+        System.out.println(sim.simulateStep(0,5,etatTest));
     }
 
 
