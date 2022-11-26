@@ -18,8 +18,8 @@
       <HBox alignment="CENTER" prefHeight="39.0" prefWidth="600.0" spacing="30.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="bouttonModifier" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="modifier" HBox.hgrow="ALWAYS" />
-            <Button fx:id="bouttonDemarrer" mnemonicParsing="false" prefHeight="25.0" prefWidth="98.0" text="démarrer" HBox.hgrow="ALWAYS" />
-            <Button fx:id="bouttonArreter" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="arrêter" HBox.hgrow="ALWAYS" />
+            <Button fx:id="bouttonDemarrer" mnemonicParsing="false" onAction="#simStart" prefHeight="25.0" prefWidth="98.0" text="démarrer" HBox.hgrow="ALWAYS" />
+            <Button fx:id="bouttonArreter" mnemonicParsing="false" onAction="#simStop" prefHeight="25.0" prefWidth="100.0" text="arrêter" HBox.hgrow="ALWAYS" />
             <HBox alignment="CENTER" prefHeight="39.0" prefWidth="237.0" spacing="10.0" HBox.hgrow="NEVER">
                <children>
                   <Label contentDisplay="CENTER" text="Temps" />

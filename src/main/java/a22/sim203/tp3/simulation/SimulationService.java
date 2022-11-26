@@ -1,8 +1,10 @@
 package a22.sim203.tp3.simulation;
 
-import javafx.concurrent.ScheduledService;
+import a22.sim203.tp3.FichierEcritureService;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SimulationService extends Service<Etat> {
@@ -11,19 +13,22 @@ public class SimulationService extends Service<Etat> {
 
     private Etat etatActuel;
 
+    private Etat etatInitial;
+
     private long dt;
 
-    private long dtTh;
+    private long dtTheorique;
 
     private double t;
 
     private boolean stop = false;
 
-    private long oldT;
 
-    public SimulationService(String name){
+    public SimulationService(String name, Etat etatInitial) {
         super();
-        simulation = new Simulation("name");
+        this.simulation = new Simulation("name", etatInitial);
+        this.etatInitial = simulation.getHistorique(0);
+        setEtatActuel(etatInitial);
     }
 
     @Override
@@ -35,38 +40,83 @@ public class SimulationService extends Service<Etat> {
         return simulation;
     }
 
+    public void setSimulation(Simulation nouvelleSimulation) {
+        this.simulation = nouvelleSimulation;
+    }
+
     public void setEtatActuel(Etat etatActuel) {
         this.etatActuel = etatActuel;
     }
 
-    public void setTempsEtIntervalTheorique(int t, int dt) {
-        this.dtTh = dt;
+    public void setTempsEtIntervalTheorique(int t, int dth) {
+        this.dtTheorique = dth;
         this.t = t;
     }
 
-    public Double getT(){
+    public Double getT() {
         return this.t;
     }
 
-    public long getDt(){
+    public void setT(long t){
+        this.t = t;
+
+    };
+
+    public long getDt() {
         return this.dt;
     }
 
-    public class SimulationServiceTask extends Task<Etat>{
+
+    public void setStop(boolean doStop) {
+        this.stop = doStop;
+
+    }
+
+    public void resetAll(){
+        setSimulation(new Simulation("sim", etatInitial));
+        setT(0);
+        setEtatActuel(new Etat(etatInitial));
+    }
+
+    public AtomicBoolean save(){
+        AtomicBoolean success = new AtomicBoolean(false);
+
+        FichierEcritureService fichierEcritureService = new FichierEcritureService(this.simulation);
+
+        fichierEcritureService.setOnSucceeded((i) -> {
+            success.set(true);
+        });
+
+        return success;
+    }
+
+
+    public class SimulationServiceTask extends Task<Etat> {
         @Override
         protected Etat call() throws Exception {
-            Etat nouvelEtat = null;
-            //Update initiale
-            while(!stop){
-                updateValue(etatActuel);
-                dt = System.currentTimeMillis() - oldT;
-                nouvelEtat = simulation.simulateStep(t,(double)dt,etatActuel);
-                Thread.sleep(dtTh*1000);
-                t = (double)(System.currentTimeMillis()/1000);
-                etatActuel = nouvelEtat;
+            Etat nouvelEtat;
+            long oldT = 0;
+
+            if(stop && simulation.getHistorique().size() >1){
+                stop = false;
+                resetAll();
             }
 
-            return nouvelEtat;
+            while (!stop && !isCancelled()) {
+                updateValue(etatActuel);
+                dt = System.currentTimeMillis() - oldT;
+                nouvelEtat = simulation.simulateStep(t, (double) dt, etatActuel);
+
+                Thread.sleep(dtTheorique * 1000);
+
+                t = (double) (System.currentTimeMillis() / 1000);
+                etatActuel = nouvelEtat;
+                oldT = System.currentTimeMillis();
+            }
+
+            save();
+
+            return etatActuel;
         }
     }
 }

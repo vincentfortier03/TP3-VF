@@ -1,11 +1,13 @@
 package a22.sim203.tp3.simulation;
 
+import a22.sim203.tp3.FichierEcritureService;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class Simulation implements Serializable {
@@ -13,8 +15,10 @@ public class Simulation implements Serializable {
     private String name;
     private List<Etat> historique = new ArrayList<>();// l'état 0 est le premier état de l'historique
 
-    public Simulation(String name) {
+    public Simulation(String name, Etat initial) {
         this.name = name;
+        ajouteDansHistorique(initial);
+
     }
 
     public Etat simulateStep(double t, double dt, Etat etatActuel) {
@@ -30,7 +34,7 @@ public class Simulation implements Serializable {
                 for (int j = 0; j < fctActuelle.getArgumentsNumber(); j++) {
                     listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
                 }
-               nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
+                nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
             }
         }
 
@@ -53,7 +57,7 @@ public class Simulation implements Serializable {
     public Etat getHistorique(int step) {
         Etat retEtat = null;
 
-        if(step <= historique.size()){
+        if (step <= historique.size()) {
             retEtat = historique.get(step);
         }
 
@@ -92,21 +96,6 @@ public class Simulation implements Serializable {
 
     public static void main(String[] args) {
 
-        Etat etatTest = new Etat();
-        Equation equation = new Equation("test", "f(x)=x+1");
-
-        etatTest.addVariable(new Variable("x", 20));
-        etatTest.getVariable("x").ajouteEquation(equation);
-
-        Simulation sim = new Simulation("test");
-
-        Etat nvEtat = sim.simulateStep(0,1,etatTest);
-        System.out.println(etatTest);
-        System.out.println(nvEtat);
-        nvEtat = sim.simulateStep(1,1, nvEtat);
-        System.out.println(nvEtat);
-        nvEtat = sim.simulateStep(2,1, nvEtat);
-        System.out.println(nvEtat);
 
     }
 }
