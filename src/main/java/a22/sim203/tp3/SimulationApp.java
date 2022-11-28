@@ -18,9 +18,9 @@ public class SimulationApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("simulateur.fxml"));
-        primaryStage.setScene(new Scene(loader.load()));
-
-
+        Parent root = (Parent)loader.load();
+        Scene sceneSimulateur = new Scene(root);
+        primaryStage.setScene(sceneSimulateur);
 
         primaryStage.show();
     }

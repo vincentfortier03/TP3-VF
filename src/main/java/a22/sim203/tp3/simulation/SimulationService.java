@@ -1,9 +1,14 @@
 package a22.sim203.tp3.simulation;
 
-import a22.sim203.tp3.FichierEcritureService;
+import a22.sim203.tp3.DialoguesUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -24,9 +29,17 @@ public class SimulationService extends Service<Etat> {
     private boolean stop = false;
 
 
+
     public SimulationService(String name, Etat etatInitial) {
         super();
         this.simulation = new Simulation("name", etatInitial);
+        this.etatInitial = simulation.getHistorique(0);
+        setEtatActuel(etatInitial);
+    }
+
+    public SimulationService(String name, Simulation simulation) {
+        super();
+        this.simulation = simulation;
         this.etatInitial = simulation.getHistorique(0);
         setEtatActuel(etatInitial);
     }
@@ -67,8 +80,9 @@ public class SimulationService extends Service<Etat> {
     }
 
 
-    public void setStop(boolean doStop) {
-        this.stop = doStop;
+    public void setStop() {
+        this.stop = !stop;
+
 
     }
 
@@ -78,16 +92,30 @@ public class SimulationService extends Service<Etat> {
         setEtatActuel(new Etat(etatInitial));
     }
 
-    public AtomicBoolean save(){
+    public AtomicBoolean save(Stage ownerWindow){
         AtomicBoolean success = new AtomicBoolean(false);
 
-        FichierEcritureService fichierEcritureService = new FichierEcritureService(this.simulation);
+        ObjectOutputStream bw = null;
+        try {
+            File fichierDeSauvegarde = DialoguesUtils.fileChooserDialog(ownerWindow);
 
-        fichierEcritureService.setOnSucceeded((i) -> {
+            if(fichierDeSauvegarde == null){
+                System.out.println("Fichier inexistant, fichier simulation.sim sera utilisé");
+                fichierDeSauvegarde = new File("simulation.sim");
+            }
+
+            bw = new ObjectOutputStream(new FileOutputStream(fichierDeSauvegarde));
+            bw.writeObject(simulation);
             success.set(true);
-        });
+            bw.close();
 
-        return success;
+
+        } catch (Exception e) {
+            System.out.println("failed");
+        }
+
+
+        return success; //
     }
 
 
@@ -97,10 +125,6 @@ public class SimulationService extends Service<Etat> {
             Etat nouvelEtat;
             long oldT = 0;
 
-            if(stop && simulation.getHistorique().size() >1){
-                stop = false;
-                resetAll();
-            }
 
             while (!stop && !isCancelled()) {
                 updateValue(etatActuel);

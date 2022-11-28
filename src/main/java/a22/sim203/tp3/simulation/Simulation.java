@@ -1,13 +1,11 @@
 package a22.sim203.tp3.simulation;
 
-import a22.sim203.tp3.FichierEcritureService;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class Simulation implements Serializable {

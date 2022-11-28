@@ -43,17 +43,10 @@ public class SimulateurController implements Initializable {
 
         simService = new SimulationService("strinmg name", etatTest);
         simService.setTempsEtIntervalTheorique(0,1);
-
-
     }
 
     @FXML
     public void simStart(ActionEvent event){
-
-
-        if(simService.getState() != Worker.State.READY){
-            simService.reset();
-        }
 
         simService.valueProperty().addListener((a,o,n) -> {
             System.out.println(n);
@@ -68,7 +61,8 @@ public class SimulateurController implements Initializable {
         });
 
         simService.setOnSucceeded((i) -> {
-            simService.setStop(false);
+            simService.setStop();
+
         });
 
         simService.start();
@@ -78,7 +72,7 @@ public class SimulateurController implements Initializable {
     @FXML
     public void simStop(ActionEvent event){
         if (simService != null && simService.isRunning() && simService.getState() != Worker.State.CANCELLED){
-            simService.setStop(true);
+            simService.setStop();
             simService.save();
         }
     }
