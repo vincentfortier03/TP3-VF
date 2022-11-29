@@ -7,9 +7,11 @@ import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,6 +19,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class SimulateurController implements Initializable {
+
+    @FXML
+    private BorderPane root;
 
     @FXML
     private Button bouttonArreter;
@@ -34,8 +39,9 @@ public class SimulateurController implements Initializable {
 
     public SimulationService simService;
 
-
     public Equation equation;
+
+    public Etat lastEtat;
 
 
 
@@ -50,21 +56,18 @@ public class SimulateurController implements Initializable {
         simService = new SimulationService("test", etatTest);
         simService.setTempsEtIntervalTheorique(0,1);
 
-        try{
-            simService.save((Stage)(SimulationApp.loadFXML("Simulateur.fxml").getRoot()));
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-
 
     }
 
     @FXML
     public void simStart(ActionEvent event){
 
+        simService = new SimulationService("FE", new Etat(etatTest));
 
         simService.setOnSucceeded((i) ->{
             System.out.println("complété");
+
+            simService.setStop();
         });
 
         simService.valueProperty().addListener((a,o,n) -> {
@@ -80,5 +83,11 @@ public class SimulateurController implements Initializable {
         if (simService != null && simService.isRunning() && simService.getState() != Worker.State.CANCELLED){
             simService.setStop();
         }
+    }
+
+    @FXML
+    void saveToCustomFile(ActionEvent event) {
+        simService.save(root.getScene().getWindow());
+
     }
 }

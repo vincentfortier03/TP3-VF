@@ -5,6 +5,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.*;
 import java.util.Stack;
@@ -31,13 +32,14 @@ public class SimulationService extends Service<Etat> {
     public SimulationService(String name, Etat etatInitial) {
         super();
         this.simulation = new Simulation("name", etatInitial);
-        this.etatInitial = simulation.getHistorique(0);
+        this.etatInitial = simulation.getHistorique(simulation.getHistorique().size()-1);
         setEtatActuel(etatInitial);
     }
 
-    public SimulationService(String name, Simulation simulation) {
+    public SimulationService(String name, SimulationService simulationService) {
         super();
-        this.simulation = simulation;
+        this.simulation = new Simulation("name", new Etat(simulationService.getSimulation().getHistorique(simulationService.getSimulation().getHistorique().size()-1)));
+        this.simulation.setHistorique(simulationService.getSimulation().getHistorique());
         this.etatInitial = simulation.getHistorique(0);
         setEtatActuel(etatInitial);
     }
@@ -86,8 +88,7 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    public void save(Stage ownerWindow) {
-        AtomicBoolean success = new AtomicBoolean(false);
+    public void save(Window ownerWindow) {
 
         ObjectOutputStream bw = null;
         try {
@@ -100,7 +101,7 @@ public class SimulationService extends Service<Etat> {
 
             bw = new ObjectOutputStream(new FileOutputStream(fichierDeSauvegarde));
             bw.writeObject(simulation);
-            success.set(true);
+
             bw.close();
 
 

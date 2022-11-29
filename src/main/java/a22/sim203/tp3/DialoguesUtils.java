@@ -22,7 +22,7 @@ public class DialoguesUtils {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichier de simulation", "*.sim"));
 
 
-       File fichierDeSauvegarde = fileChooser.showOpenDialog(ownerWindow);
+       File fichierDeSauvegarde = fileChooser.showSaveDialog(ownerWindow);
        return fichierDeSauvegarde;
     }
 
