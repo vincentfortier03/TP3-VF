@@ -1,31 +1,64 @@
 package a22.sim203.tp3;
 
-import a22.sim203.tp3.controlleurs.SimulateurController;
-import a22.sim203.tp3.simulation.Equation;
-import a22.sim203.tp3.simulation.Etat;
-import a22.sim203.tp3.simulation.SimulationService;
-import a22.sim203.tp3.simulation.Variable;
+
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class SimulationApp extends Application {
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("simulateur.fxml"));
-        Parent root = (Parent)loader.load();
-        Scene sceneSimulateur = new Scene(root);
-        primaryStage.setScene(sceneSimulateur);
 
+        primaryStage.setScene(new Scene(loadFXML("Calculatrice.fxml").getRoot()));
         primaryStage.show();
+
+        Stage simStage = new Stage();
+        simStage.setScene(new Scene(loadFXML("Simulateur.fxml").getRoot()));
+        simStage.show();
+
+        Stage editeurStage = new Stage();
+        editeurStage.setScene(new Scene(loadFXML("Editeur.fxml").getRoot()));
+        editeurStage.show();
+
+    }
+
+    public static Load loadFXML(String fxmlFileName) throws IOException {
+        FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource(fxmlFileName));
+        Parent root = loader.load();
+        Object controller = loader.getController();
+
+        return new Load(){
+
+            @Override
+            public Object getController() {
+                return controller;
+            }
+
+            @Override
+            public Parent getRoot() {
+                return root;
+            }
+        };
+
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
+    public interface Load {
+        public Object getController();
+
+        public Parent getRoot();
+    }
+
 }
+
+
+

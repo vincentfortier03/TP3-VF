@@ -73,7 +73,7 @@ public class SimulateurController implements Initializable {
     public void simStop(ActionEvent event){
         if (simService != null && simService.isRunning() && simService.getState() != Worker.State.CANCELLED){
             simService.setStop();
-            simService.save();
+
         }
     }
 

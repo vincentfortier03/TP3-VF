@@ -138,7 +138,7 @@ public class SimulationService extends Service<Etat> {
                 oldT = System.currentTimeMillis();
             }
 
-            save();
+
 
             return etatActuel;
         }

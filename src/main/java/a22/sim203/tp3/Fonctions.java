@@ -1,4 +1,4 @@
-package TP2;
+package a22.sim203.tp3;
 
 import javafx.scene.control.TextInputDialog;
 import org.mariuszgromada.math.mxparser.Expression;

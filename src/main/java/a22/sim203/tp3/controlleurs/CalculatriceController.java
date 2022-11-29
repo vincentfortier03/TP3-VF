@@ -1,4 +1,4 @@
-package TP2;
+package a22.sim203.tp3.controlleurs;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.mariuszgromada.math.mxparser.Expression;
+import a22.sim203.tp3.*;
 
 import java.net.URL;
 import java.util.*;
