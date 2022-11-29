@@ -19,18 +19,15 @@
             <VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="162.0" spacing="10.0" HBox.hgrow="ALWAYS">
                <children>
                   <Label text="Simulations" />
-                  <ListView fx:id="listViewEditeur" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                  <ListView fx:id="listViewSimulations" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
                      <contextMenu>
                         <ContextMenu>
                            <items>
-                              <Menu mnemonicParsing="false" text="Unspecified Menu">
-                                <items>
-                                  <MenuItem mnemonicParsing="false" text="Action 1" />
-                                </items>
-                              </Menu>
+                            <MenuItem fx:id="bouttonMenuAjouterSimulation" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter simulation" />
+                              <MenuItem mnemonicParsing="false" text="Retirer" />
                            </items>
                         </ContextMenu>
                      </contextMenu>
@@ -43,7 +40,15 @@
             <VBox alignment="TOP_CENTER" prefHeight="345.0" prefWidth="189.0" spacing="10.0" HBox.hgrow="ALWAYS">
                <children>
                   <Label text="Variables" />
-                  <ListView fx:id="listViewVariables" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="listViewVariables" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <contextMenu>
+                        <ContextMenu>
+                           <items>
+                              <MenuItem fx:id="bouttonMenuAjouterSimulation1" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter variable" />
+                              <MenuItem mnemonicParsing="false" text="Retirer" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu></ListView>
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -52,7 +57,15 @@
             <VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="184.0" spacing="10.0" HBox.hgrow="ALWAYS">
                <children>
                   <Label contentDisplay="CENTER" text="Équations" />
-                  <ListView fx:id="listViewEquations" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="listViewEquations" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <contextMenu>
+                        <ContextMenu>
+                           <items>
+                              <MenuItem fx:id="bouttonMenuAjouterSimulation2" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter équation" />
+                              <MenuItem mnemonicParsing="false" text="Retirer" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu></ListView>
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -80,12 +93,12 @@
    <bottom>
       <HBox alignment="CENTER" prefHeight="36.0" prefWidth="600.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="bouttonCharger" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Charger" HBox.hgrow="NEVER">
+            <Button fx:id="bouttonCharger" mnemonicParsing="false" onAction="#charger" prefHeight="25.0" prefWidth="110.0" text="Charger" HBox.hgrow="NEVER">
                <HBox.margin>
                   <Insets right="30.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="bouttonEnregistrer" mnemonicParsing="false" prefHeight="25.0" prefWidth="110.0" text="Enregistrer">
+            <Button fx:id="bouttonEnregistrer" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="110.0" text="Enregistrer">
                <HBox.margin>
                   <Insets left="30.0" />
                </HBox.margin>
