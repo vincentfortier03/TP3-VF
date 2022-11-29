@@ -3,12 +3,11 @@ package a22.sim203.tp3.simulation;
 import a22.sim203.tp3.DialoguesUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -27,7 +26,6 @@ public class SimulationService extends Service<Etat> {
     private double t;
 
     private boolean stop = false;
-
 
 
     public SimulationService(String name, Etat etatInitial) {
@@ -70,10 +68,12 @@ public class SimulationService extends Service<Etat> {
         return this.t;
     }
 
-    public void setT(long t){
+    public void setT(long t) {
         this.t = t;
 
-    };
+    }
+
+    ;
 
     public long getDt() {
         return this.dt;
@@ -86,20 +86,14 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    public void resetAll(){
-        setSimulation(new Simulation("sim", etatInitial));
-        setT(0);
-        setEtatActuel(new Etat(etatInitial));
-    }
-
-    public AtomicBoolean save(Stage ownerWindow){
+    public void save(Stage ownerWindow) {
         AtomicBoolean success = new AtomicBoolean(false);
 
         ObjectOutputStream bw = null;
         try {
             File fichierDeSauvegarde = DialoguesUtils.fileChooserDialog(ownerWindow);
 
-            if(fichierDeSauvegarde == null){
+            if (fichierDeSauvegarde == null) {
                 System.out.println("Fichier inexistant, fichier simulation.sim sera utilisé");
                 fichierDeSauvegarde = new File("simulation.sim");
             }
@@ -113,9 +107,29 @@ public class SimulationService extends Service<Etat> {
         } catch (Exception e) {
             System.out.println("failed");
         }
+    }
+
+    public Simulation read(String filePath) {
+        Simulation sim = null;
+
+        ObjectInputStream bw = null;
+        try {
+            File fichierALire = new File(filePath);
+
+            if (fichierALire == null) {
+                System.out.println("Fichier inexistant...");
+
+            }else{
+                bw = new ObjectInputStream(new FileInputStream(fichierALire));
+                sim = (Simulation) bw.readObject();
+                bw.close();
+            }
+        } catch (Exception e) {
+            System.out.println("failed");
+        }
 
 
-        return success; //
+        return sim; //
     }
 
 
@@ -137,7 +151,6 @@ public class SimulationService extends Service<Etat> {
                 etatActuel = nouvelEtat;
                 oldT = System.currentTimeMillis();
             }
-
 
 
             return etatActuel;
