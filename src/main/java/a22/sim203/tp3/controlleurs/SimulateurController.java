@@ -41,8 +41,6 @@ public class SimulateurController implements Initializable {
 
     public Equation equation;
 
-    public Etat lastEtat;
-
 
 
     @Override

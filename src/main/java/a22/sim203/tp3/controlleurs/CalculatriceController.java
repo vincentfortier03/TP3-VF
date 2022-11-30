@@ -1,27 +1,30 @@
 package a22.sim203.tp3.controlleurs;
 
+import a22.sim203.tp3.simulation.*;
+import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import org.mariuszgromada.math.mxparser.Expression;
 import a22.sim203.tp3.*;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
 /**
  * Classe controller pour le fichier FXML Calculatrice.fxml
@@ -294,6 +297,18 @@ public class CalculatriceController implements Initializable {
     @FXML
     private VBox vBoxGauche;
 
+    @FXML
+    private ListView<Simulation> listViewSimulations;
+
+    @FXML
+    private ListView<Equation> listViewEquations;
+
+    @FXML
+    private ListView<Variable> listViewVariables;
+
+    @FXML
+    private TextField testFieldTemps;
+
     /**
      * Liste simple stockant les objets de type "Fonctions"
      * Permettra d'accéder les Fonctions facilement
@@ -312,6 +327,17 @@ public class CalculatriceController implements Initializable {
      * La valeur associée à la clée est plutôt une Fonctions
      */
     private Map<String, Fonctions> mapFonctions;
+
+    public Etat etatTest;
+
+    public SimulationService simService;
+
+    public Equation equation1;
+    public Equation equation2;
+    public Equation equation3;
+    public Equation equation4;
+
+
 
 
     /**
@@ -334,6 +360,57 @@ public class CalculatriceController implements Initializable {
 
         listViewHistorique.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> doubleCliqueHistorique(e));
         listViewFonctions.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> doubleCliqueFct(e));
+
+        equation1 = new Equation("test", "f(x)=x+1");
+        equation2 = new Equation("test2", "f(x)=89p");
+        equation3 = new Equation("test3", "f(x)=x+z+y+1");
+        equation4 = new Equation("test4", "f(x)=y");
+
+
+        etatTest = new Etat();
+        etatTest.addVariable(new Variable("x", 20));
+        etatTest.addVariable(new Variable("y", 5));
+        etatTest.addVariable(new Variable("z", 4));
+        etatTest.addVariable(new Variable("p", 7));
+
+        etatTest.getVariable("x").ajouteEquation(equation1);
+        etatTest.getVariable("x").ajouteEquation(equation3);
+        etatTest.getVariable("y").ajouteEquation(equation3);
+        etatTest.getVariable("y").ajouteEquation(equation4);
+        etatTest.getVariable("z").ajouteEquation(equation3);
+        etatTest.getVariable("p").ajouteEquation(equation2);
+
+
+        simService = new SimulationService("test", etatTest);
+        simService.setTempsEtIntervalTheorique(0,1);
+
+
+        listViewSimulations.setCellFactory((e) -> new simCell());
+        listViewVariables.setCellFactory((e) -> new varCell());
+        listViewEquations.setCellFactory((e) -> new eqCell());
+
+
+        listViewSimulations.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Simulation>() {
+            @Override
+            public void onChanged(Change<? extends Simulation> c) {
+                listViewVariables.itemsProperty().set(FXCollections.observableList(listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList()));
+            }
+        });
+
+        listViewVariables.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Variable>() {
+            @Override
+            public void onChanged(Change<? extends Variable> c) {
+                System.out.println(listViewVariables.getSelectionModel().getSelectedItem().getObservableListEquation());
+                listViewEquations.getItems().remove(0, listViewEquations.getItems().size()-1);
+                listViewEquations.itemsProperty().set(FXCollections.observableList(new ArrayList<>(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection())));
+
+
+            }
+        });
+
+
+
+
     }
 
     /**
@@ -647,4 +724,81 @@ public class CalculatriceController implements Initializable {
         DialoguesUtils.alerteAide();
         event.consume();
     }
+
+    @FXML
+    public void ajouterSimulation(ActionEvent actionEvent) {
+        Simulation sim = new Simulation("name", new Etat(etatTest));
+        listViewSimulations.getItems().add(sim);
+        //listViewSimulations.refresh();
+        System.out.println("ajoute");
+    }
+
+    @FXML
+    void charger(ActionEvent event) {
+
+    }
+
+    @FXML
+    void lancerSimulation(ActionEvent event) {
+
+    }
+
+    @FXML
+    void save(ActionEvent event) {
+
+    }
+
+    static class simCell extends ListCell<Simulation>{
+        @Override
+        public void updateItem(Simulation sim, boolean empty){
+            super.updateItem(sim,empty);
+            Label label = new Label();
+            HBox hBox = new HBox(label);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setEditable(false);
+
+
+            if(sim != null){
+                label.setText(sim.getName());
+                setGraphic(hBox);
+            }
+            updateListView(getListView());
+        }
+    }
+
+    static class varCell extends ListCell<Variable>{
+        @Override
+        public void updateItem(Variable variable, boolean empty){
+            super.updateItem(variable,empty);
+            Label label = new Label();
+            HBox hBox = new HBox(label);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setEditable(false);
+
+            if(variable != null){
+                label.setText(variable.getName());
+                setGraphic(hBox);
+            }
+            updateListView(getListView());
+        }
+    }
+
+    static class eqCell extends ListCell<Equation>{
+        @Override
+        public void updateItem(Equation equation, boolean empty){
+            super.updateItem(equation,empty);
+            Label label = new Label();
+            HBox hBox = new HBox(label);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setEditable(false);
+
+
+            if(equation != null){
+                label.setText(equation.getExpression());
+                setGraphic(hBox);
+            }
+            updateListView(getListView());
+        }
+    }
+
 }

@@ -62,6 +62,10 @@ public class Simulation implements Serializable {
         return retEtat;
     }
 
+    public Etat getLastEtat() {
+        return historique.get(historique.size()-1);
+    }
+
     public void ajouteDansHistorique(Etat nouvelEtat) {
         historique.add(nouvelEtat);
     }

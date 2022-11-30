@@ -22,10 +22,6 @@ public class SimulationApp extends Application {
         simStage.setScene(new Scene(loadFXML("Simulateur.fxml").getRoot()));
         simStage.show();
 
-        Stage editeurStage = new Stage();
-        editeurStage.setScene(new Scene(loadFXML("Editeur.fxml").getRoot()));
-        editeurStage.show();
-
     }
 
     public static Load loadFXML(String fxmlFileName) throws IOException {

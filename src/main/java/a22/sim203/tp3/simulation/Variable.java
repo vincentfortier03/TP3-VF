@@ -1,5 +1,9 @@
 package a22.sim203.tp3.simulation;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableListBase;
+import javafx.collections.ObservableMap;
 import org.mariuszgromada.math.mxparser.Argument;
 
 import java.io.IOException;
@@ -14,6 +18,8 @@ public class Variable implements Serializable {
     private double value;
 
     private Map<String, Equation> equations = new HashMap<>();
+
+    private ObservableList<Equation> equationObservableList;
 
     public Variable(String name, double value) {
         this.name = name;
@@ -64,6 +70,7 @@ public class Variable implements Serializable {
 
     public void ajouteEquation(Equation equation) {
         equations.put(equation.getName(), equation);
+
     }
 
     public Map<String, Equation> getEquationsMap() {
@@ -73,6 +80,14 @@ public class Variable implements Serializable {
     public Collection<Equation> getEquationsCollection() {
         return equations.values();
     }
+
+    public ObservableList<Equation> getObservableListEquation(){
+        return FXCollections.observableList(new ArrayList<>(equations.values()));
+    }
+
+
+
+
 
     public void setEquations(Map<String, Equation> equations) {
         this.equations = equations;
