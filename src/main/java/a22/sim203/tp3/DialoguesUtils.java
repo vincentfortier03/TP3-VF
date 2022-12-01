@@ -1,5 +1,6 @@
 package a22.sim203.tp3;
 
+import a22.sim203.tp3.simulation.Simulation;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -70,6 +71,18 @@ public class DialoguesUtils {
         alerteAide.setHeaderText("Sim203");
         alerteAide.setContentText("Cours de programmation 203 en SIM \nCégep Limoilou A22\npar: Vincent Fortier");
         alerteAide.showAndWait();
+    }
+
+    public static Simulation dialogSimulation(){
+        TextInputDialog dialog = new TextInputDialog();
+
+        dialog.setHeaderText("Entrer une simulation");
+        dialog.setContentText("Saisissez le nom de la simulation: ");
+        dialog.setTitle("Editeur de simulation");
+
+        dialog.getEditor().setText(str);
+
+        return dialog;
     }
 
 

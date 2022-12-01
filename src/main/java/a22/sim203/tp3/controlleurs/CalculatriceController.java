@@ -390,21 +390,23 @@ public class CalculatriceController implements Initializable {
         listViewEquations.setCellFactory((e) -> new eqCell());
 
 
+        listViewSimulations.setDisable(false);
+
         listViewSimulations.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Simulation>() {
             @Override
             public void onChanged(Change<? extends Simulation> c) {
-                listViewVariables.itemsProperty().set(FXCollections.observableList(listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList()));
+                listViewVariables.getItems().clear();
+                listViewVariables.getItems().addAll(listViewSimulations.getSelectionModel().getSelectedItem().getHistorique(listViewSimulations.getSelectionModel().getSelectedItem().getHistorique().size()-1).getVariableList());
+                listViewVariables.refresh();
             }
         });
 
         listViewVariables.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Variable>() {
             @Override
             public void onChanged(Change<? extends Variable> c) {
-                System.out.println(listViewVariables.getSelectionModel().getSelectedItem().getObservableListEquation());
-                listViewEquations.getItems().remove(0, listViewEquations.getItems().size()-1);
-                listViewEquations.itemsProperty().set(FXCollections.observableList(new ArrayList<>(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection())));
-
-
+                listViewEquations.getItems().clear();
+                listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+                listViewEquations.refresh();
             }
         });
 
@@ -727,10 +729,37 @@ public class CalculatriceController implements Initializable {
 
     @FXML
     public void ajouterSimulation(ActionEvent actionEvent) {
-        Simulation sim = new Simulation("name", new Etat(etatTest));
-        listViewSimulations.getItems().add(sim);
-        //listViewSimulations.refresh();
-        System.out.println("ajoute");
+//        Simulation sim = new Simulation("name", new Etat(etatTest));
+//        listViewSimulations.getItems().add(sim);
+//        listViewSimulations.refresh();
+//        System.out.println("ajoute");
+
+
+    }
+
+    @FXML
+    void retirerEquation(ActionEvent event) {
+
+    }
+
+    @FXML
+    void retirerSimulation(ActionEvent event) {
+
+    }
+
+    @FXML
+    void retirerVariable(ActionEvent event) {
+
+    }
+
+    @FXML
+    void ajouterEquation(ActionEvent event) {
+
+    }
+
+    @FXML
+    void ajouterVariable(ActionEvent event) {
+
     }
 
     @FXML
@@ -749,56 +778,79 @@ public class CalculatriceController implements Initializable {
     }
 
     static class simCell extends ListCell<Simulation>{
+        private String stringAAfficher;
+        private HBox hBox;
+        private Label label;
+
+        public simCell(){
+            label = new Label();
+            hBox = new HBox(label);
+        }
         @Override
         public void updateItem(Simulation sim, boolean empty){
             super.updateItem(sim,empty);
-            Label label = new Label();
-            HBox hBox = new HBox(label);
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            setEditable(false);
 
-
-            if(sim != null){
-                label.setText(sim.getName());
+            if(sim == null || empty){
+                setItem(null);
+                setGraphic(null);
+            }else{
+                stringAAfficher = sim.getName();
+                setItem(sim);
+                label.setText(stringAAfficher);
                 setGraphic(hBox);
             }
-            updateListView(getListView());
         }
     }
 
     static class varCell extends ListCell<Variable>{
+        private String stringAAfficher;
+        private HBox hBox;
+        private Label label;
+
+        public varCell(){
+            label = new Label();
+            hBox = new HBox(label);
+        }
+
         @Override
         public void updateItem(Variable variable, boolean empty){
             super.updateItem(variable,empty);
-            Label label = new Label();
-            HBox hBox = new HBox(label);
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            setEditable(false);
 
-            if(variable != null){
-                label.setText(variable.getName());
+            if(variable == null || empty){
+                setItem(null);
+                setGraphic(null);
+            }else{
+                stringAAfficher = variable.getName();
+                setItem(variable);
+                label.setText(stringAAfficher);
                 setGraphic(hBox);
             }
-            updateListView(getListView());
         }
     }
 
     static class eqCell extends ListCell<Equation>{
+        private String stringAAfficher;
+        private HBox hBox;
+        private Label label;
+
+        public eqCell(){
+            label = new Label();
+            hBox = new HBox(label);
+        }
+
         @Override
         public void updateItem(Equation equation, boolean empty){
             super.updateItem(equation,empty);
-            Label label = new Label();
-            HBox hBox = new HBox(label);
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            setEditable(false);
 
-
-            if(equation != null){
-                label.setText(equation.getExpression());
+            if(equation == null || empty){
+                setItem(null);
+                setGraphic(null);
+            }else{
+                stringAAfficher = equation.getExpression();
+                setItem(equation);
+                label.setText(stringAAfficher);
                 setGraphic(hBox);
             }
-            updateListView(getListView());
         }
     }
-
 }
