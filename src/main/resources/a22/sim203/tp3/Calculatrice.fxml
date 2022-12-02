@@ -227,7 +227,7 @@
                            <contextMenu>
                               <ContextMenu>
                                  <items>
-                                    <MenuItem fx:id="bouttonMenuAjouterSimulation1" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter variable" />
+                                    <MenuItem fx:id="bouttonMenuAjouterSimulation1" mnemonicParsing="false" onAction="#ajouterVariable" text="Ajouter variable" />
                                     <MenuItem mnemonicParsing="false" text="Retirer" />
                                  </items>
                               </ContextMenu>
@@ -256,7 +256,7 @@
                <children>
                   <Button fx:id="bouttonCharger" mnemonicParsing="false" onAction="#charger" prefHeight="25.0" prefWidth="103.0" text="Charger" HBox.hgrow="ALWAYS" />
                   <Button fx:id="bouttonEnregistrer" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="88.0" text="Sauvegarder" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="bouttonSimuler" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#lancerSimulation" prefHeight="25.0" prefWidth="106.0" text="Simuler" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="bouttonSimuler" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#lancerSimulation" prefHeight="25.0" prefWidth="106.0" text="Simule" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
          </children>

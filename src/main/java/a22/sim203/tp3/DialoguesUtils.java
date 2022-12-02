@@ -74,15 +74,7 @@ public class DialoguesUtils {
     }
 
     public static Simulation dialogSimulation(){
-        TextInputDialog dialog = new TextInputDialog();
-
-        dialog.setHeaderText("Entrer une simulation");
-        dialog.setContentText("Saisissez le nom de la simulation: ");
-        dialog.setTitle("Editeur de simulation");
-
-        dialog.getEditor().setText(str);
-
-        return dialog;
+        return null;
     }
 
 
