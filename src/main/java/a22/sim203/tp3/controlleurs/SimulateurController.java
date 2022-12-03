@@ -85,7 +85,7 @@ public class SimulateurController implements Initializable {
 
     @FXML
     void saveToCustomFile(ActionEvent event) {
-        simService.save(root.getScene().getWindow());
+
 
     }
 }

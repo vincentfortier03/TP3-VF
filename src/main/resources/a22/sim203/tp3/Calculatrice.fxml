@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyInput" prefHeight="400.0" prefWidth="933.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="a22.sim203.tp3.controlleurs.CalculatriceController">
+<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyInput" prefHeight="400.0" prefWidth="933.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="a22.sim203.tp3.controlleurs.CalculatriceController">
    <center>
       <GridPane fx:id="gridPaneBouttons" alignment="CENTER" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: grey;" vgap="5.0" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -207,9 +207,10 @@
                               <Insets />
                            </VBox.margin>
                            <contextMenu>
-                              <ContextMenu>
+                              <ContextMenu fx:id="modifierEquationMenu">
                                  <items>
                                     <MenuItem fx:id="bouttonMenuAjouterSimulation" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter simulation" />
+                                    <MenuItem mnemonicParsing="false" onAction="#modifierSimulation" text="Modifier" />
                                     <MenuItem mnemonicParsing="false" text="Retirer" />
                                  </items>
                               </ContextMenu>
@@ -228,6 +229,7 @@
                               <ContextMenu>
                                  <items>
                                     <MenuItem fx:id="bouttonMenuAjouterSimulation1" mnemonicParsing="false" onAction="#ajouterVariable" text="Ajouter variable" />
+                                    <MenuItem mnemonicParsing="false" onAction="#modifierVariable" text="Modifier" />
                                     <MenuItem mnemonicParsing="false" text="Retirer" />
                                  </items>
                               </ContextMenu>
@@ -242,7 +244,8 @@
                            <contextMenu>
                               <ContextMenu>
                                  <items>
-                                    <MenuItem fx:id="bouttonMenuAjouterSimulation2" mnemonicParsing="false" onAction="#ajouterSimulation" text="Ajouter équation" />
+                                    <MenuItem fx:id="bouttonMenuAjouterSimulation2" mnemonicParsing="false" onAction="#ajouterEquation" text="Ajouter équation" />
+                                    <MenuItem mnemonicParsing="false" onAction="#modifierEquation" text="Modifier" />
                                     <MenuItem mnemonicParsing="false" text="Retirer" />
                                  </items>
                               </ContextMenu>

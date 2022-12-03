@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import org.mariuszgromada.math.mxparser.Expression;
 import a22.sim203.tp3.*;
@@ -406,9 +407,14 @@ public class CalculatriceController implements Initializable {
         listViewVariables.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Variable>() {
             @Override
             public void onChanged(Change<? extends Variable> c) {
-                listViewEquations.getItems().clear();
-                listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-                listViewEquations.refresh();
+                if(!listViewVariables.getSelectionModel().getSelectedItems().isEmpty()){
+                    listViewEquations.getItems().clear();
+                    listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+                    listViewEquations.refresh();
+                }else {
+                    listViewEquations.getItems().clear();
+                    listViewEquations.refresh();
+                }
             }
         });
 
@@ -729,36 +735,7 @@ public class CalculatriceController implements Initializable {
         event.consume();
     }
 
-    @FXML
-    public void ajouterSimulation(ActionEvent actionEvent) throws IOException {
-        Simulation simulationSaisie = null;
-        FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource("AjouterSimulation.fxml"));
-        Parent root = loader.load();
 
-        String nom;
-        Etat etatInitial;
-
-        TextField textFieldNom = (TextField) loader.getNamespace().get("textFieldNom");
-
-        Alert dialogAjouterSim = new Alert(Alert.AlertType.CONFIRMATION);
-        dialogAjouterSim.getDialogPane().setContent(root);
-        dialogAjouterSim.setTitle("Ajouter une simulation");
-        dialogAjouterSim.setHeaderText("Ajouter une simulation");
-
-        Optional<ButtonType> type = dialogAjouterSim.showAndWait();
-        if (type.isPresent() && type.get() == ButtonType.OK) {
-            nom = textFieldNom.getText();
-
-            etatInitial = new Etat();
-            simulationSaisie = new Simulation(nom,etatInitial);
-        }
-
-        if(simulationSaisie != null){
-            listViewSimulations.getItems().add(simulationSaisie);
-        }else System.out.println("simulationSaisie == null");
-
-        listViewSimulations.refresh();
-    }
 
     @FXML
     void retirerEquation(ActionEvent event) {
@@ -775,48 +752,73 @@ public class CalculatriceController implements Initializable {
 
     }
 
-    @FXML
-    void ajouterEquation(ActionEvent event) {
 
+    @FXML
+    public void ajouterSimulation(ActionEvent actionEvent) throws IOException {
+        Simulation simulationSaisie = DialoguesUtils.dialogSimulation(false, null);
+
+        if(simulationSaisie != null){
+            listViewSimulations.getItems().add(simulationSaisie);
+        }
+
+        listViewSimulations.refresh();
+    }
+    @FXML
+    void ajouterEquation(ActionEvent event) throws IOException {
+        Equation equationSaisie = DialoguesUtils.dialogueEquation(null);
+
+        if(equationSaisie != null){
+            listViewVariables.getSelectionModel().getSelectedItem().ajouteEquation(equationSaisie);
+        }
+
+        listViewEquations.refresh();
     }
 
     @FXML
     void ajouterVariable(ActionEvent event) throws IOException {
-        Variable variableSaisie = null;
-        FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource("AjouterVariable.fxml"));
-        Parent root = loader.load();
-
-        String nom;
-        double valeur = 0;
-
-        TextField textFieldNom = (TextField) loader.getNamespace().get("textFieldNom");
-        TextField textFieldValeur = (TextField) loader.getNamespace().get("textFieldValeur");
-
-        Alert dialogAjouterVariable = new Alert(Alert.AlertType.CONFIRMATION);
-        dialogAjouterVariable.getDialogPane().setContent(root);
-        dialogAjouterVariable.setTitle("Ajouter une simulation");
-        dialogAjouterVariable.setHeaderText("Ajouter une simulation");
-
-        Optional<ButtonType> type = dialogAjouterVariable.showAndWait();
-        if (type.isPresent() && type.get() == ButtonType.OK) {
-            nom = textFieldNom.getText();
-
-            valeur = Double.parseDouble(textFieldValeur.getText());
-            variableSaisie = new Variable(nom,valeur);
-        }
+        Variable variableSaisie = DialoguesUtils.dialogueVariable(false, null);
 
         if(variableSaisie != null){
             listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().addVariable(variableSaisie);
-
-        }else System.out.println("variableSaisie == null");
+        }
 
         listViewVariables.refresh();
         listViewSimulations.refresh();
     }
 
-    @FXML
-    void charger(ActionEvent event) {
 
+    @FXML
+    void modifierSimulation(ActionEvent event) throws IOException {
+
+        if(!listViewSimulations.getSelectionModel().isEmpty()){
+            DialoguesUtils.dialogSimulation(true, listViewSimulations.getSelectionModel().getSelectedItem());
+        }
+        listViewSimulations.refresh();
+    }
+
+    @FXML
+    void modifierVariable(ActionEvent event) throws IOException {
+        if(!listViewVariables.getSelectionModel().isEmpty()) {
+            DialoguesUtils.dialogueVariable(true, listViewVariables.getSelectionModel().getSelectedItem());
+        }
+        listViewVariables.refresh();
+    }
+
+    @FXML
+    void modifierEquation(ActionEvent event) throws IOException {
+        if(!listViewEquations.getSelectionModel().isEmpty()) {
+            DialoguesUtils.dialogueEquation(listViewEquations.getSelectionModel().getSelectedItem());
+        }
+        listViewEquations.refresh();
+    }
+
+    @FXML
+    void charger(ActionEvent event) throws IOException {
+        Simulation simulationChargee = DialoguesUtils.openFileDialog(SimulationApp.loadFXML("Calculatrice.fxml").getRoot().getScene().getWindow());
+
+        if(simulationChargee != null){
+            listViewSimulations.getItems().add(simulationChargee);
+        }
     }
 
     @FXML
@@ -825,8 +827,11 @@ public class CalculatriceController implements Initializable {
     }
 
     @FXML
-    void save(ActionEvent event) {
-
+    void save(ActionEvent event) throws IOException {
+        if(!listViewSimulations.getSelectionModel().isEmpty()){
+            DialoguesUtils.saveFileDialog(SimulationApp.loadFXML("Calculatrice.fxml").getRoot().getScene().getWindow(),listViewSimulations.getSelectionModel().getSelectedItem());
+            System.out.println("saved");
+        }
     }
 
     static class simCell extends ListCell<Simulation>{

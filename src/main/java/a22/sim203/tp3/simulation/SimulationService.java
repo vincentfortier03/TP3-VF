@@ -88,28 +88,6 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    public void save(Window ownerWindow) {
-
-        ObjectOutputStream bw = null;
-        try {
-            File fichierDeSauvegarde = DialoguesUtils.fileChooserDialog(ownerWindow);
-
-            if (fichierDeSauvegarde == null) {
-                System.out.println("Fichier inexistant, fichier simulation.sim sera utilisé");
-                fichierDeSauvegarde = new File("simulation.sim");
-            }
-
-            bw = new ObjectOutputStream(new FileOutputStream(fichierDeSauvegarde));
-            bw.writeObject(simulation);
-
-            bw.close();
-
-
-        } catch (Exception e) {
-            System.out.println("failed");
-        }
-    }
-
     public Simulation read(String filePath) {
         Simulation sim = null;
 
