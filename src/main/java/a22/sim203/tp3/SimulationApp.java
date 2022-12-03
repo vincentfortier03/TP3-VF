@@ -10,11 +10,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class SimulationApp extends Application {
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         primaryStage.setScene(new Scene(loadFXML("Calculatrice.fxml").getRoot()));
         primaryStage.show();
 

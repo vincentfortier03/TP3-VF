@@ -246,7 +246,7 @@
                                  <items>
                                     <MenuItem fx:id="bouttonMenuAjouterSimulation2" mnemonicParsing="false" onAction="#ajouterEquation" text="Ajouter équation" />
                                     <MenuItem mnemonicParsing="false" onAction="#modifierEquation" text="Modifier" />
-                                    <MenuItem mnemonicParsing="false" text="Retirer" />
+                                    <MenuItem mnemonicParsing="false" onAction="#retirerEquation" text="Retirer" />
                                  </items>
                               </ContextMenu>
                            </contextMenu>

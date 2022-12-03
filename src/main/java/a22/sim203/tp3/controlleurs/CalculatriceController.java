@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
+import static a22.sim203.tp3.SimulationApp.loadFXML;
+
 /**
  * Classe controller pour le fichier FXML Calculatrice.fxml
  *
@@ -392,9 +394,6 @@ public class CalculatriceController implements Initializable {
         listViewVariables.setCellFactory((e) -> new varCell());
         listViewEquations.setCellFactory((e) -> new eqCell());
 
-
-        listViewSimulations.setDisable(false);
-
         listViewSimulations.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Simulation>() {
             @Override
             public void onChanged(Change<? extends Simulation> c) {
@@ -410,11 +409,10 @@ public class CalculatriceController implements Initializable {
                 if(!listViewVariables.getSelectionModel().getSelectedItems().isEmpty()){
                     listViewEquations.getItems().clear();
                     listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-                    listViewEquations.refresh();
-                }else {
+                }else{
                     listViewEquations.getItems().clear();
-                    listViewEquations.refresh();
                 }
+                    listViewEquations.refresh();
             }
         });
 
@@ -739,7 +737,12 @@ public class CalculatriceController implements Initializable {
 
     @FXML
     void retirerEquation(ActionEvent event) {
-
+        if(!listViewEquations.getSelectionModel().isEmpty()){
+            listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection().remove(listViewEquations.getSelectionModel().getSelectedItem());
+            listViewEquations.getItems().clear();
+            listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+            listViewEquations.refresh();
+        }
     }
 
     @FXML
@@ -762,6 +765,7 @@ public class CalculatriceController implements Initializable {
         }
 
         listViewSimulations.refresh();
+        listViewVariables.refresh();
     }
     @FXML
     void ajouterEquation(ActionEvent event) throws IOException {
@@ -770,6 +774,8 @@ public class CalculatriceController implements Initializable {
         if(equationSaisie != null){
             listViewVariables.getSelectionModel().getSelectedItem().ajouteEquation(equationSaisie);
         }
+        listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+        listViewEquations.refresh();
 
         listViewEquations.refresh();
     }
@@ -789,7 +795,6 @@ public class CalculatriceController implements Initializable {
 
     @FXML
     void modifierSimulation(ActionEvent event) throws IOException {
-
         if(!listViewSimulations.getSelectionModel().isEmpty()){
             DialoguesUtils.dialogSimulation(true, listViewSimulations.getSelectionModel().getSelectedItem());
         }
@@ -814,7 +819,7 @@ public class CalculatriceController implements Initializable {
 
     @FXML
     void charger(ActionEvent event) throws IOException {
-        Simulation simulationChargee = DialoguesUtils.openFileDialog(SimulationApp.loadFXML("Calculatrice.fxml").getRoot().getScene().getWindow());
+        Simulation simulationChargee = DialoguesUtils.openFileDialog(root.getScene().getWindow());
 
         if(simulationChargee != null){
             listViewSimulations.getItems().add(simulationChargee);
@@ -829,7 +834,7 @@ public class CalculatriceController implements Initializable {
     @FXML
     void save(ActionEvent event) throws IOException {
         if(!listViewSimulations.getSelectionModel().isEmpty()){
-            DialoguesUtils.saveFileDialog(SimulationApp.loadFXML("Calculatrice.fxml").getRoot().getScene().getWindow(),listViewSimulations.getSelectionModel().getSelectedItem());
+            DialoguesUtils.saveFileDialog(root.getScene().getWindow(), listViewSimulations.getSelectionModel().getSelectedItem());
             System.out.println("saved");
         }
     }
