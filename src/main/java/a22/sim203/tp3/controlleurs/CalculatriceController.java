@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -18,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -366,29 +368,8 @@ public class CalculatriceController implements Initializable {
         listViewHistorique.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> doubleCliqueHistorique(e));
         listViewFonctions.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> doubleCliqueFct(e));
 
-        equation1 = new Equation("test", "f(x)=x+1");
-        equation2 = new Equation("test2", "f(x)=89p");
-        equation3 = new Equation("test3", "f(x)=x+z+y+1");
-        equation4 = new Equation("test4", "f(x)=y");
 
-
-        etatTest = new Etat();
-        etatTest.addVariable(new Variable("x", 20));
-        etatTest.addVariable(new Variable("y", 5));
-        etatTest.addVariable(new Variable("z", 4));
-        etatTest.addVariable(new Variable("p", 7));
-
-        etatTest.getVariable("x").ajouteEquation(equation1);
-        etatTest.getVariable("x").ajouteEquation(equation3);
-        etatTest.getVariable("y").ajouteEquation(equation3);
-        etatTest.getVariable("y").ajouteEquation(equation4);
-        etatTest.getVariable("z").ajouteEquation(equation3);
-        etatTest.getVariable("p").ajouteEquation(equation2);
-
-
-        simService = new SimulationService("test", etatTest);
         simService.setTempsEtIntervalTheorique(0,1);
-
 
         listViewSimulations.setCellFactory((e) -> new simCell());
         listViewVariables.setCellFactory((e) -> new varCell());
@@ -397,26 +378,15 @@ public class CalculatriceController implements Initializable {
         listViewSimulations.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Simulation>() {
             @Override
             public void onChanged(Change<? extends Simulation> c) {
-                listViewVariables.getItems().clear();
-                listViewVariables.getItems().addAll(listViewSimulations.getSelectionModel().getSelectedItem().getHistorique(listViewSimulations.getSelectionModel().getSelectedItem().getHistorique().size()-1).getVariableList());
-                listViewVariables.refresh();
+                refreshVar();
             }
         });
-
         listViewVariables.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Variable>() {
             @Override
             public void onChanged(Change<? extends Variable> c) {
-                if(!listViewVariables.getSelectionModel().getSelectedItems().isEmpty()){
-                    listViewEquations.getItems().clear();
-                    listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-                }else{
-                    listViewEquations.getItems().clear();
-                }
-                    listViewEquations.refresh();
+                refreshEqu();
             }
         });
-
-
 
 
     }
@@ -734,25 +704,28 @@ public class CalculatriceController implements Initializable {
     }
 
 
-
     @FXML
     void retirerEquation(ActionEvent event) {
         if(!listViewEquations.getSelectionModel().isEmpty()){
             listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection().remove(listViewEquations.getSelectionModel().getSelectedItem());
-            listViewEquations.getItems().clear();
-            listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-            listViewEquations.refresh();
+            refreshEqu();
         }
     }
 
     @FXML
     void retirerSimulation(ActionEvent event) {
-
+        listViewSimulations.getItems().remove(listViewSimulations.getSelectionModel().getSelectedItem());
+        listViewVariables.getItems().clear();
+        refreshVar();
+        refreshEqu();
     }
 
     @FXML
     void retirerVariable(ActionEvent event) {
-
+        if(!listViewSimulations.getSelectionModel().isEmpty()){
+            listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList().remove(listViewVariables.getSelectionModel().getSelectedItem());
+            refreshVar();
+        }
     }
 
 
@@ -774,10 +747,7 @@ public class CalculatriceController implements Initializable {
         if(equationSaisie != null){
             listViewVariables.getSelectionModel().getSelectedItem().ajouteEquation(equationSaisie);
         }
-        listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-        listViewEquations.refresh();
-
-        listViewEquations.refresh();
+        refreshEqu();
     }
 
     @FXML
@@ -788,8 +758,7 @@ public class CalculatriceController implements Initializable {
             listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().addVariable(variableSaisie);
         }
 
-        listViewVariables.refresh();
-        listViewSimulations.refresh();
+        refreshVar();
     }
 
 
@@ -806,7 +775,7 @@ public class CalculatriceController implements Initializable {
         if(!listViewVariables.getSelectionModel().isEmpty()) {
             DialoguesUtils.dialogueVariable(true, listViewVariables.getSelectionModel().getSelectedItem());
         }
-        listViewVariables.refresh();
+        refreshVar();
     }
 
     @FXML
@@ -827,8 +796,13 @@ public class CalculatriceController implements Initializable {
     }
 
     @FXML
-    void lancerSimulation(ActionEvent event) {
+    void lancerSimulation(ActionEvent event) throws IOException {
+        Stage simStage = new Stage();
+        SimulationApp.Load load = loadFXML("Simulateur.fxml");
+        Parent root = load.getRoot();
+        simStage.setScene(new Scene(root));
 
+        simStage.show();
     }
 
     @FXML
@@ -837,6 +811,24 @@ public class CalculatriceController implements Initializable {
             DialoguesUtils.saveFileDialog(root.getScene().getWindow(), listViewSimulations.getSelectionModel().getSelectedItem());
             System.out.println("saved");
         }
+    }
+
+    private void refreshEqu(){
+        listViewEquations.getItems().clear();
+        if(!listViewVariables.getSelectionModel().isEmpty()){
+            listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+        }
+        listViewEquations.refresh();
+
+    }
+
+    private void refreshVar(){
+        listViewVariables.getItems().clear();
+        refreshEqu();
+        if(!listViewSimulations.getSelectionModel().isEmpty()){
+            listViewVariables.getItems().addAll(listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList());
+        }
+        listViewVariables.refresh();
     }
 
     static class simCell extends ListCell<Simulation>{

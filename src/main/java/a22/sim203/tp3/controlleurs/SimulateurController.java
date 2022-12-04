@@ -45,14 +45,7 @@ public class SimulateurController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        equation = new Equation("test", "f(x)=x+1");
-        etatTest = new Etat();
-        etatTest.addVariable(new Variable("x", 20));
-        etatTest.getVariable("x").ajouteEquation(equation);
 
-
-        simService = new SimulationService("test", etatTest);
-        simService.setTempsEtIntervalTheorique(0,1);
 
 
     }
