@@ -800,8 +800,9 @@ public class CalculatriceController implements Initializable {
         Parent root = load.load();
         SimulateurController controller = load.getController();
 
-        if(!listViewSimulations.getSelectionModel().isEmpty()){
+        if(!listViewEquations.getSelectionModel().isEmpty()){
             controller.setSimulation(listViewSimulations.getSelectionModel().getSelectedItem());
+            controller.setEquation(listViewEquations.getSelectionModel().getSelectedItem());
 
             simStage.setScene(new Scene(root));
             simStage.show();

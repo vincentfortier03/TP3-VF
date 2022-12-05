@@ -9,9 +9,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -35,9 +35,14 @@ public class SimulateurController implements Initializable {
     @FXML
     private TextField testFieldTemps;
 
+    @FXML
+    private ListView<Variable> listViewVariablesSimulateur;
+
     private SimulationService simService;
 
     private Simulation simulation;
+
+    private Equation equation;
 
     private int t;
 
@@ -46,6 +51,10 @@ public class SimulateurController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setTDT(0,1);
+
+        listViewVariablesSimulateur = new ListView<>();
+        listViewVariablesSimulateur.setCellFactory((e) -> new varCell());
+
     }
 
     @FXML
@@ -61,7 +70,11 @@ public class SimulateurController implements Initializable {
         });
 
         simService.valueProperty().addListener((a,o,n) -> {
-            System.out.println(simService.getValue());
+            listViewVariablesSimulateur.getItems().clear();
+            listViewVariablesSimulateur.getItems().addAll(n.getVariableList());
+            listViewVariablesSimulateur.refresh();
+            System.out.println(n.getVariableList());
+
         });
 
         simService.start();
@@ -79,6 +92,11 @@ public class SimulateurController implements Initializable {
         this.simulation = simulation;
     }
 
+    public void setEquation(Equation equation){
+        this.equation = equation;
+    }
+
+
     @FXML
     void saveToCustomFile(ActionEvent event) {
 
@@ -89,4 +107,36 @@ public class SimulateurController implements Initializable {
         this.dtTheorique = dtTheorique;
 
     }
+
+    private void refreshVariables(){
+
+    }
+
+    static class varCell extends ListCell<Variable> {
+        private String stringAAfficher;
+        private HBox hBox;
+        private Label label;
+
+        public varCell(){
+            label = new Label();
+            hBox = new HBox(label);
+        }
+
+        @Override
+        public void updateItem(Variable variable, boolean empty){
+            super.updateItem(variable,empty);
+
+            if(variable == null || empty){
+                setItem(new Variable("null", 0));
+                label.setText("null");
+                setGraphic(hBox);
+            }else{
+                stringAAfficher = variable.getName();
+                setItem(variable);
+                label.setText(stringAAfficher + " = " + variable.getValue());
+                setGraphic(hBox);
+            }
+        }
+    }
+
 }
