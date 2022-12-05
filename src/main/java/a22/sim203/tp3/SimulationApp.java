@@ -14,11 +14,6 @@ public class SimulationApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setScene(new Scene(loadFXML("Calculatrice.fxml").getRoot()));
         primaryStage.show();
-
-        Stage simStage = new Stage();
-        simStage.setScene(new Scene(loadFXML("Simulateur.fxml").getRoot()));
-        simStage.show();
-
     }
 
     public static Load loadFXML(String fxmlFileName) throws IOException {

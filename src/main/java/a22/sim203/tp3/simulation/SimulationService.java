@@ -75,8 +75,6 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    ;
-
     public long getDt() {
         return this.dt;
     }

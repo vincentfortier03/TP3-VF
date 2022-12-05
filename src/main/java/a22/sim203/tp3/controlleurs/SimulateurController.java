@@ -35,25 +35,24 @@ public class SimulateurController implements Initializable {
     @FXML
     private TextField testFieldTemps;
 
-    public Etat etatTest;
+    private SimulationService simService;
 
-    public SimulationService simService;
+    private Simulation simulation;
 
-    public Equation equation;
+    private int t;
 
-
+    private int dtTheorique;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-
-
+        setTDT(0,1);
     }
 
     @FXML
     public void simStart(ActionEvent event){
 
-        simService = new SimulationService("FE", new Etat(etatTest));
+        simService = new SimulationService("FE", new Etat(simulation.getLastEtat()));
+        simService.setTempsEtIntervalTheorique(this.t,this.dtTheorique);
 
         simService.setOnSucceeded((i) ->{
             System.out.println("complété");
@@ -76,9 +75,18 @@ public class SimulateurController implements Initializable {
         }
     }
 
+    public void setSimulation(Simulation simulation){
+        this.simulation = simulation;
+    }
+
     @FXML
     void saveToCustomFile(ActionEvent event) {
 
+    }
+
+    public void setTDT(int t, int dtTheorique){
+        this.t = t;
+        this.dtTheorique = dtTheorique;
 
     }
 }

@@ -369,8 +369,6 @@ public class CalculatriceController implements Initializable {
         listViewFonctions.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> doubleCliqueFct(e));
 
 
-        simService.setTempsEtIntervalTheorique(0,1);
-
         listViewSimulations.setCellFactory((e) -> new simCell());
         listViewVariables.setCellFactory((e) -> new varCell());
         listViewEquations.setCellFactory((e) -> new eqCell());
@@ -798,11 +796,18 @@ public class CalculatriceController implements Initializable {
     @FXML
     void lancerSimulation(ActionEvent event) throws IOException {
         Stage simStage = new Stage();
-        SimulationApp.Load load = loadFXML("Simulateur.fxml");
-        Parent root = load.getRoot();
-        simStage.setScene(new Scene(root));
+        FXMLLoader load = new FXMLLoader(SimulationApp.class.getResource("Simulateur.fxml"));
+        Parent root = load.load();
+        SimulateurController controller = load.getController();
 
-        simStage.show();
+        if(!listViewSimulations.getSelectionModel().isEmpty()){
+            controller.setSimulation(listViewSimulations.getSelectionModel().getSelectedItem());
+
+            simStage.setScene(new Scene(root));
+            simStage.show();
+        }else {
+            System.out.println("Aucune simulation sélectionnée");
+        }
     }
 
     @FXML
