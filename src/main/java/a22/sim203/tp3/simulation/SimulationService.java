@@ -1,15 +1,7 @@
 package a22.sim203.tp3.simulation;
 
-import a22.sim203.tp3.DialoguesUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.scene.Parent;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-
-import java.io.*;
-import java.util.Stack;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SimulationService extends Service<Etat> {
@@ -24,7 +16,7 @@ public class SimulationService extends Service<Etat> {
 
     private long dtTheorique;
 
-    private double t;
+    private float t = 0;
 
     private boolean stop = false;
 
@@ -32,13 +24,13 @@ public class SimulationService extends Service<Etat> {
     public SimulationService(String name, Etat etatInitial) {
         super();
         this.simulation = new Simulation("name", etatInitial);
-        this.etatInitial = simulation.getHistorique(simulation.getHistorique().size()-1);
+        this.etatInitial = simulation.getHistorique(simulation.getHistorique().size() - 1);
         setEtatActuel(etatInitial);
     }
 
     public SimulationService(String name, SimulationService simulationService) {
         super();
-        this.simulation = new Simulation("name", new Etat(simulationService.getSimulation().getHistorique(simulationService.getSimulation().getHistorique().size()-1)));
+        this.simulation = new Simulation("name", new Etat(simulationService.getSimulation().getHistorique(simulationService.getSimulation().getHistorique().size() - 1)));
         this.simulation.setHistorique(simulationService.getSimulation().getHistorique());
         this.etatInitial = simulation.getHistorique(0);
         setEtatActuel(etatInitial);
@@ -61,13 +53,12 @@ public class SimulationService extends Service<Etat> {
         this.etatActuel = etatActuel;
     }
 
-    public void setTempsEtIntervalTheorique(int t, int dth) {
+    public void setIntervalTheorique(float t, int dth) {
         this.dtTheorique = dth;
-        this.t = t;
     }
 
-    public Double getT() {
-        return this.t;
+    public float getT() {
+        return (this.t) / (float) 1000;
     }
 
     public void setT(long t) {
@@ -86,49 +77,25 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    public Simulation read(String filePath) {
-        Simulation sim = null;
-
-        ObjectInputStream bw = null;
-        try {
-            File fichierALire = new File(filePath);
-
-            if (fichierALire == null) {
-                System.out.println("Fichier inexistant...");
-
-            }else{
-                bw = new ObjectInputStream(new FileInputStream(fichierALire));
-                sim = (Simulation) bw.readObject();
-                bw.close();
-            }
-        } catch (Exception e) {
-            System.out.println("failed");
-        }
-
-
-        return sim; //
-    }
-
 
     public class SimulationServiceTask extends Task<Etat> {
         @Override
         protected Etat call() throws Exception {
             Etat nouvelEtat;
-            long oldT = 0;
+            long oldT = System.currentTimeMillis();
 
-
+            updateValue(etatActuel);
             while (!stop && !isCancelled()) {
-                updateValue(etatActuel);
-                dt = System.currentTimeMillis() - oldT;
-                nouvelEtat = simulation.simulateStep(t, (double) dt, etatActuel);
-
                 Thread.sleep(dtTheorique * 1000);
 
-                t = (double) (System.currentTimeMillis() / 1000);
+                dt = System.currentTimeMillis() - oldT;
+                t += dt;
+                nouvelEtat = simulation.simulateStep(t, (double) dt, etatActuel);
+
                 etatActuel = nouvelEtat;
                 oldT = System.currentTimeMillis();
+                updateValue(etatActuel);
             }
-
 
             return etatActuel;
         }

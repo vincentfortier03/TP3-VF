@@ -1,20 +1,16 @@
 package a22.sim203.tp3.controlleurs;
 
-import a22.sim203.tp3.SimulationApp;
 import a22.sim203.tp3.simulation.*;
-import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -38,13 +34,16 @@ public class SimulateurController implements Initializable {
     @FXML
     private ListView<Variable> listViewVariablesSimulateur;
 
+    @FXML
+    private LineChart<Variable,Float> lineChartSimulateur;
+
     private SimulationService simService;
 
     private Simulation simulation;
 
     private Equation equation;
 
-    private int t;
+    private float t;
 
     private int dtTheorique;
 
@@ -52,16 +51,16 @@ public class SimulateurController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setTDT(0,1);
 
-        listViewVariablesSimulateur = new ListView<>();
+
+
         listViewVariablesSimulateur.setCellFactory((e) -> new varCell());
 
     }
 
     @FXML
     public void simStart(ActionEvent event){
-
         simService = new SimulationService("FE", new Etat(simulation.getLastEtat()));
-        simService.setTempsEtIntervalTheorique(this.t,this.dtTheorique);
+        simService.setIntervalTheorique(this.t,this.dtTheorique);
 
         simService.setOnSucceeded((i) ->{
             System.out.println("complété");
@@ -75,6 +74,7 @@ public class SimulateurController implements Initializable {
             listViewVariablesSimulateur.refresh();
             System.out.println(n.getVariableList());
 
+            testFieldTemps.setText(""+simService.getT());
         });
 
         simService.start();
@@ -127,9 +127,8 @@ public class SimulateurController implements Initializable {
             super.updateItem(variable,empty);
 
             if(variable == null || empty){
-                setItem(new Variable("null", 0));
-                label.setText("null");
-                setGraphic(hBox);
+                setItem(null);
+                setGraphic(null);
             }else{
                 stringAAfficher = variable.getName();
                 setItem(variable);
