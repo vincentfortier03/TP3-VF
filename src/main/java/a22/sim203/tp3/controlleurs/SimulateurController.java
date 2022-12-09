@@ -1,17 +1,23 @@
 package a22.sim203.tp3.controlleurs;
 
 import a22.sim203.tp3.simulation.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class SimulateurController implements Initializable {
@@ -35,7 +41,20 @@ public class SimulateurController implements Initializable {
     private ListView<Variable> listViewVariablesSimulateur;
 
     @FXML
-    private LineChart<Variable,Float> lineChartSimulateur;
+    private LineChart<CategoryAxis,NumberAxis> lineChartSimulateur;
+
+    @FXML
+    private NumberAxis yAxis;
+
+    @FXML
+    private CategoryAxis xAxis;
+
+    private XYChart.Series<Float, Double> xyChartSeries;
+
+    private ObservableList<XYChart.Series<Float,Double>> seriesObservableList;
+
+    private ObservableList<XYChart.Data<Float, Double>> observableListDataVariables;
+
 
     private SimulationService simService;
 
@@ -50,8 +69,16 @@ public class SimulateurController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setTDT(0,1);
+        observableListDataVariables = FXCollections.observableList(new ArrayList<>());
+        lineChartSimulateur.setData(seriesObservableList);
+        seriesObservableList = FXCollections.observableList(new ArrayList<>());
+        seriesObservableList.add(xyChartSeries);
+
+        xAxis = new CategoryAxis();
+        yAxis = new NumberAxis();
 
 
+        lineChartSimulateur = new LineChart<Float,Double>(yAxis,xAxis);
 
         listViewVariablesSimulateur.setCellFactory((e) -> new varCell());
 
@@ -61,6 +88,9 @@ public class SimulateurController implements Initializable {
     public void simStart(ActionEvent event){
         simService = new SimulationService("FE", new Etat(simulation.getLastEtat()));
         simService.setIntervalTheorique(this.t,this.dtTheorique);
+        setupLineChart();
+
+
 
         simService.setOnSucceeded((i) ->{
             System.out.println("complété");
@@ -69,10 +99,11 @@ public class SimulateurController implements Initializable {
         });
 
         simService.valueProperty().addListener((a,o,n) -> {
-            listViewVariablesSimulateur.getItems().clear();
-            listViewVariablesSimulateur.getItems().addAll(n.getVariableList());
-            listViewVariablesSimulateur.refresh();
-            System.out.println(n.getVariableList());
+//            listViewVariablesSimulateur.getItems().clear();
+//            listViewVariablesSimulateur.getItems().addAll(n.getVariableList());
+//            listViewVariablesSimulateur.refresh();
+//            System.out.println(n.getVariableList());
+            System.out.println(lineChartSimulateur);
 
             testFieldTemps.setText(""+simService.getT());
         });
@@ -90,6 +121,7 @@ public class SimulateurController implements Initializable {
 
     public void setSimulation(Simulation simulation){
         this.simulation = simulation;
+        listViewVariablesSimulateur.getItems().addAll(simulation.getLastEtat().getVariableList());
     }
 
     public void setEquation(Equation equation){
@@ -107,8 +139,21 @@ public class SimulateurController implements Initializable {
         this.dtTheorique = dtTheorique;
 
     }
+    private void setupLineChart(){
+        observableListDataVariables.clear();
+        xyChartSeries = new XYChart.Series<>();
 
-    private void refreshVariables(){
+        xyChartSeries.setName("bruh");
+        xyChartSeries.setData(observableListDataVariables);
+        simService.valueProperty().addListener(new ChangeListener<Etat>() {
+            @Override
+            public void changed(ObservableValue<? extends Etat> observable, Etat oldValue, Etat newValue) {
+                if(listViewVariablesSimulateur.getSelectionModel().getSelectedItem() != null){
+                    observableListDataVariables.add(new XYChart.Data<>(simService.getT(),simService.getValue().getVariable(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName()).getValue()));
+                }
+            }
+        });
+
 
     }
 
