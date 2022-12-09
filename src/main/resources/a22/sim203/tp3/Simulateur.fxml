@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="1287.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="a22.sim203.tp3.controlleurs.SimulateurController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="1287.0" xmlns="http://javafx.com/javafx/18" fx:controller="a22.sim203.tp3.controlleurs.SimulateurController">
    <bottom>
       <HBox alignment="CENTER" prefHeight="42.0" prefWidth="906.0" spacing="15.0" BorderPane.alignment="CENTER">
          <children>
@@ -41,10 +41,10 @@
    <center>
       <LineChart fx:id="lineChartSimulateur" style="-fx-background-color: white;" title="Simulation" BorderPane.alignment="CENTER">
         <xAxis>
-          <CategoryAxis label="Temps" side="BOTTOM" fx:id="xAxis" />
+          <CategoryAxis label="Temps" side="BOTTOM" tickLength="5.0" fx:id="xAxis" />
         </xAxis>
         <yAxis>
-          <NumberAxis fx:id="yAxis" label="Valeurs" side="LEFT" />
+          <NumberAxis fx:id="yAxis" autoRanging="false" forceZeroInRange="false" label="Valeurs" minorTickVisible="false" side="LEFT" upperBound="200.0" />
         </yAxis>
          <padding>
             <Insets bottom="10.0" left="3.0" right="30.0" top="30.0" />
