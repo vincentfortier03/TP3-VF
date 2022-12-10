@@ -19,24 +19,50 @@ public class Simulation implements Serializable {
 
     }
 
-    public Etat simulateStep(double t, double dt, Etat etatActuel) {
-        Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
+    public static void main(String[] args) {
+        Etat etat = new Etat();
 
-        ajouteDansHistorique(etatActuel);
+        Variable variableY = new Variable("y",10);
+        Equation equationGravite = new Equation("y(t)","f(t,y)=(-9.8(0.1)(t^2)/2)+y");
 
-        for (int i = 0; i < etatActuel.getVariableList().size(); i++) {
-            for (Equation equationOld : etatActuel.getVariableList().get(i).getEquationsCollection()) {
-                Function fctActuelle = convertEquationToFunction(equationOld);
-                Argument[] listValuesArguments = new Argument[fctActuelle.getArgumentsNumber()];
+        variableY.ajouteEquation(equationGravite);
+        etat.addVariable(variableY);
+        Simulation simulation = new Simulation("test",etat);
+        Argument[] arguments = new Argument[2];
+        arguments[0] = new Argument("t",1);
+        arguments[1] = new Argument("y",100);
+        System.out.println(simulation.convertEquationToFunction(equationGravite).checkSyntax());
+        System.out.println(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName());
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments));
+        Argument[] arguments2 = new Argument[2];
+        arguments2[0] = new Argument("t",2);
+        arguments2[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments2));
+        Argument[] arguments3 = new Argument[2];
+        arguments3[0] = new Argument("t",3);
+        arguments3[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments2));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments3));
+        Argument[] arguments4 = new Argument[2];
+        arguments4[0] = new Argument("t",4);
+        arguments4[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments3));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments4));
+        Argument[] arguments5 = new Argument[2];
+        arguments5[0] = new Argument("t",5);
+        arguments5[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments4));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments5));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(new Argument(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName(),1)));
+        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(new Argument(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName(),2)));
 
-                for (int j = 0; j < fctActuelle.getArgumentsNumber(); j++) {
-                    listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
-                }
-                nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
-            }
-        }
+        System.out.println(etat);
+        Etat etat1 = new Etat(simulation.simulateStep(0,1,etat));
+        System.out.println(etat1);
+        Etat etat2 = new Etat(simulation.simulateStep(1,1,etat1));
+        System.out.println(etat2);
+        Etat etat3 = new Etat(simulation.simulateStep(2,1,etat2));
+        System.out.println(etat3);
+        Etat etat4 = new Etat(simulation.simulateStep(3,1,etat3));
+        System.out.println(etat4);
 
-        return nouvelEtat;
     }
 
 
@@ -101,8 +127,26 @@ public class Simulation implements Serializable {
         this.historique = historique;
     }
 
-    public static void main(String[] args) {
+    public Etat simulateStep(double t, double dt, Etat etatActuel) {
+        Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
 
+        ajouteDansHistorique(etatActuel);
 
+        for (int i = 0; i < etatActuel.getVariableList().size(); i++) {
+            for (Equation equationOld : etatActuel.getVariableList().get(i).getEquationsCollection()) {
+                Function fctActuelle = convertEquationToFunction(equationOld);
+                Argument[] listValuesArguments = new Argument[fctActuelle.getArgumentsNumber()];
+                for (int j = 0; j < fctActuelle.getArgumentsNumber(); j++) {
+                    if(fctActuelle.getArgument(j).getArgumentName().equals("t")){
+                        listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), t);
+                    }else{
+                        listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
+                    }
+                }
+                nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
+            }
+        }
+
+        return nouvelEtat;
     }
 }
