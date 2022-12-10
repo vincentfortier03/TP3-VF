@@ -52,6 +52,11 @@ public class Simulation implements Serializable {
         return new Function(equation.getExpression());
     }
 
+    public List<Function> getFucntionListFromVariable(Variable variable){
+
+        return convertEquationsToFunctions(variable.getEquationsCollection());
+    }
+
     public Etat getHistorique(int step) {
         Etat retEtat = null;
 

@@ -13,9 +13,13 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Function;
 
+import javax.xml.crypto.Data;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SimulateurController implements Initializable {
@@ -39,20 +43,10 @@ public class SimulateurController implements Initializable {
     private ListView<Variable> listViewVariablesSimulateur;
 
     @FXML
-    private LineChart<String,Double> lineChartSimulateur;
-
-    @FXML
-    private CategoryAxis xAxis;
-    @FXML
-    private NumberAxis yAxis;
-
-    private XYChart.Series<String, Double> serie;
+    private LineChart<Number,Number> lineChartSimulateur;
 
 
-    private ObservableList<XYChart.Series<String,Double>> seriesList;
-
-    private ObservableList<XYChart.Data<String, Double>> dataList;
-
+    private XYChart.Series<Number, Number> serie;
 
     private SimulationService simService;
 
@@ -60,27 +54,16 @@ public class SimulateurController implements Initializable {
 
     private Equation equation;
 
-    private float t;
+    private int dtTheorique = 1;
 
-    private int dtTheorique;
 
-    private XYChart.Data data;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setTDT(0,1);
-        dataList = FXCollections.observableList(new ArrayList<>());
         serie = new XYChart.Series<>();
-        seriesList = FXCollections.observableList(new ArrayList<>());
-        lineChartSimulateur.setData(seriesList);
+        serie.setName("seriePirncipale");
+        lineChartSimulateur.getData().add(serie);
 
-        yAxis.setUpperBound(100);
-        yAxis.setLowerBound(0);
-        yAxis.setTickUnit(10);
-        yAxis.setMinorTickCount(0);
-
-        yAxis.setAutoRanging(false);
-        xAxis.setAutoRanging(false);
 
         listViewVariablesSimulateur.setCellFactory((e) -> new varCell());
     }
@@ -88,13 +71,12 @@ public class SimulateurController implements Initializable {
     @FXML
     public void simStart(ActionEvent event){
         simService = new SimulationService("FE", new Etat(simulation.getLastEtat()));
-        simService.setIntervalTheorique(this.t,this.dtTheorique);
+        simService.setIntervalTheorique(this.dtTheorique);
 
-        serie = new XYChart.Series<>();
+        if(listViewVariablesSimulateur.getSelectionModel().getSelectedItem() != null){
+            setGraphBoundaries(30, listViewVariablesSimulateur.getSelectionModel().getSelectedItem());
+        }
         serie.setName(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName());
-        serie.setData(dataList);
-        seriesList.add(serie);
-
 
         simService.setOnRunning((event1 -> {
             listViewVariablesSimulateur.setDisable(true);
@@ -105,25 +87,18 @@ public class SimulateurController implements Initializable {
             listViewVariablesSimulateur.setDisable(false);
             listViewVariablesSimulateur.refresh();
             simService.setStop();
-            dataList.clear();
-            seriesList.clear();
+            serie.getData().clear();
         });
 
         simService.valueProperty().addListener((a,o,n) -> {
-//            listViewVariablesSimulateur.getItems().clear();
-//            listViewVariablesSimulateur.getItems().addAll(n.getVariableList());
-//            listViewVariablesSimulateur.refresh();
-//            System.out.println(n.getVariableList());
-            System.out.println(lineChartSimulateur);
+            System.out.println(n.getVariableList());
             if(listViewVariablesSimulateur.getSelectionModel().getSelectedItem() != null){
-                dataList.add(new XYChart.Data<String,Double>(""+simService.getT(), n.getVariable(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName()).getValue()));
-                System.out.println("t = " +simService.getT() + ", v = " + n.getVariable(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName()).getValue());
+               serie.getData().add( new XYChart.Data<>(simService.getT(), n.getVariable(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName()).getValue()));
             }
             testFieldTemps.setText(""+simService.getT());
         });
 
         simService.start();
-
     }
 
     @FXML
@@ -148,20 +123,14 @@ public class SimulateurController implements Initializable {
 
     }
 
-    public void setTDT(int t, int dtTheorique){
-        this.t = t;
-        this.dtTheorique = dtTheorique;
-
-    }
-    private void setupLineChart(){
-
-        simService.valueProperty().addListener(new ChangeListener<Etat>() {
-            @Override
-            public void changed(ObservableValue<? extends Etat> observable, Etat oldValue, Etat newValue) {
-
-            }
-        });
-
+    public void setGraphBoundaries(double t, Variable variable){
+        Variable variableCopy = new Variable(variable);
+        double boundary = 0;
+        for(int i = 0; i < simulation.getFucntionListFromVariable(variableCopy).size(); i++){
+            Function fct = simulation.getFucntionListFromVariable(variableCopy).get(i);
+            for(int j = 0; j <= t; j++)
+                boundary = fct.calculate(new Argument(variableCopy.getName()));
+        }
 
     }
 

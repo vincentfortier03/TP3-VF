@@ -41,7 +41,7 @@ public class DialoguesUtils {
     public static Simulation openFileDialog(Window ownerWindow) throws IOException {
         Simulation simulationChargee = null;
         FileChooser fileChooser = new FileChooser();
-        File fichierInitial = new File(System.getProperty("user.home"));
+        File fichierInitial = new File(System.getProperty("user.dir"));
         File fichierACharger = null;
 
         fileChooser.setTitle("Choisissez le fichier de simulation à charger");
@@ -56,7 +56,7 @@ public class DialoguesUtils {
             simulationChargee = (Simulation)bw.readObject() ;
 
         } catch (Exception e) {
-            System.out.println("failed");
+            System.out.println(e.getMessage());
         }finally {
             bw.close();
         }

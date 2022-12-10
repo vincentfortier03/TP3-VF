@@ -41,7 +41,7 @@
    <center>
       <LineChart fx:id="lineChartSimulateur" style="-fx-background-color: white;" title="Simulation" BorderPane.alignment="CENTER">
         <xAxis>
-          <CategoryAxis label="Temps" side="BOTTOM" tickLength="5.0" fx:id="xAxis" />
+          <NumberAxis label="Temps" side="BOTTOM" tickLength="5.0" fx:id="xAxis" />
         </xAxis>
         <yAxis>
           <NumberAxis fx:id="yAxis" autoRanging="false" forceZeroInRange="false" label="Valeurs" minorTickVisible="false" side="LEFT" upperBound="200.0" />

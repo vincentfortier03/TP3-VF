@@ -14,9 +14,9 @@ public class SimulationService extends Service<Etat> {
 
     private long dt;
 
-    private long dtTheorique;
+    private double dtTheorique;
 
-    private float t = 0;
+    private double t = 0;
 
     private boolean stop = false;
 
@@ -26,6 +26,7 @@ public class SimulationService extends Service<Etat> {
         this.simulation = new Simulation("name", etatInitial);
         this.etatInitial = simulation.getHistorique(simulation.getHistorique().size() - 1);
         setEtatActuel(etatInitial);
+
     }
 
     public SimulationService(String name, SimulationService simulationService) {
@@ -53,12 +54,12 @@ public class SimulationService extends Service<Etat> {
         this.etatActuel = etatActuel;
     }
 
-    public void setIntervalTheorique(float t, int dth) {
+    public void setIntervalTheorique(int dth) {
         this.dtTheorique = dth;
     }
 
-    public float getT() {
-        return (this.t) / (float) 1000;
+    public double getT() {
+        return this.t / 1000;
     }
 
     public void setT(long t) {
@@ -66,7 +67,7 @@ public class SimulationService extends Service<Etat> {
 
     }
 
-    public long getDt() {
+    public double getDt() {
         return this.dt;
     }
 
@@ -86,7 +87,7 @@ public class SimulationService extends Service<Etat> {
 
             updateValue(etatActuel);
             while (!stop && !isCancelled()) {
-                Thread.sleep(dtTheorique * 1000);
+                Thread.sleep((long) (dtTheorique * 1000));
 
                 dt = System.currentTimeMillis() - oldT;
                 t += dt;
