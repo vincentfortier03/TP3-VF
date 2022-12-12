@@ -21,6 +21,9 @@ public class Fonctions {
     private String fonctionSansFdeX;
 
 
+    /**
+     * Constructeur de la classe Fonction
+     */
     public Fonctions() {
         demanderStringFct();
         creerFonction();

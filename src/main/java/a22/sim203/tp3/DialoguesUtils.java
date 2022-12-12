@@ -6,18 +6,29 @@ import a22.sim203.tp3.simulation.Simulation;
 import a22.sim203.tp3.simulation.Variable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
+/**
+ * classe DialogueUtils. Méthodes statiques pour les dialogues
+ *
+ *  @author Vincent Fortier
+ */
 public class DialoguesUtils {
-//todo
 
+    /**
+     * permet de sauvegarder la simulation passée en argumend dans un fichier sim au choix
+     * @param ownerWindow la fenêtre propriétaire
+     * @param simulationASave la simulation à sauvegarder
+     * @throws IOException une exception lancée par le dialogue
+     */
     public static void saveFileDialog(Window ownerWindow, Simulation simulationASave) throws IOException {
         FileChooser fileChooser = new FileChooser();
         File fichierDeSauvegarde = fileChooser.showSaveDialog(ownerWindow);
@@ -38,6 +49,12 @@ public class DialoguesUtils {
         }
     }
 
+    /**
+     * Permet de charger une simulation stockée dans un fichier .sim au choix
+     * @param ownerWindow la fenêtre propriétaire
+     * @return la simulation chargée
+     * @throws IOException une exception lancée par le dialogue de sélection de fichier
+     */
     public static Simulation openFileDialog(Window ownerWindow) throws IOException {
         Simulation simulationChargee = null;
         FileChooser fileChooser = new FileChooser();
@@ -110,6 +127,13 @@ public class DialoguesUtils {
         alerteAide.showAndWait();
     }
 
+    /**
+     * Permet de modifier ou d'ajouter une simulation selon les paramètres reçus en argument
+     * @param modification vrai si on veut modifier, faux si on ajoute
+     * @param simulation la simulation à modifier, une nouvelle simulation si on ajoute
+     * @return la simulation
+     * @throws IOException une exception lancée par le dialogue
+     */
     public static Simulation dialogSimulation(boolean modification, Simulation simulation) throws IOException {
         FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource("AjouterSimulation.fxml"));
         Parent root = loader.load();
@@ -144,7 +168,13 @@ public class DialoguesUtils {
 
         return simulation;
     }
-
+    /**
+     * Permet de modifier ou d'ajouter une variable selon les paramètres reçus en argument
+     * @param modifier vrai si on veut modifier, faux si on ajoute
+     * @param variableSaisie la variable à modifier, une nouvelle variable si on ajoute
+     * @return la simulation
+     * @throws IOException une exception lancée par le dialogue
+     */
     public static Variable dialogueVariable(boolean modifier, Variable variableSaisie) throws IOException {
         FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource("AjouterVariable.fxml"));
         Parent root = loader.load();
@@ -184,7 +214,12 @@ public class DialoguesUtils {
         }
         return variableSaisie;
     }
-
+    /**
+     * Permet de modifier ou d'ajouter une équation selon les paramètres reçus en argument
+     * @param equation vrai si on veut modifier, faux si on ajoute
+     * @return la simulation
+     * @throws IOException une exception lancée par le dialogue
+     */
     public static Equation dialogueEquation(Equation equation) throws IOException {
         FXMLLoader loader = new FXMLLoader(SimulationApp.class.getResource("AjouterEquation.fxml"));
         Parent root = loader.load();

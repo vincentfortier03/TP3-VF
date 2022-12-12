@@ -1,7 +1,12 @@
 package a22.sim203.tp3.controlleurs;
 
-import a22.sim203.tp3.simulation.*;
-import javafx.collections.*;
+import a22.sim203.tp3.DialoguesUtils;
+import a22.sim203.tp3.Fonctions;
+import a22.sim203.tp3.SimulationApp;
+import a22.sim203.tp3.simulation.Equation;
+import a22.sim203.tp3.simulation.Simulation;
+import a22.sim203.tp3.simulation.Variable;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,12 +18,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.mariuszgromada.math.mxparser.Expression;
-import a22.sim203.tp3.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,224 +32,12 @@ import java.util.*;
  * @author Vincent Fortier
  */
 public class CalculatriceController implements Initializable {
-
-    /**
-     * Boutton moins
-     */
-    @FXML
-    private Button bouttonMinus;
-
-    /**
-     * Boutton 0
-     */
-    @FXML
-    private Button boutton0;
-
-    /**
-     * Boutton 1
-     */
-    @FXML
-    private Button boutton1;
-
-    /**
-     * boutton 2
-     */
-    @FXML
-    private Button boutton2;
-    /**
-     * boutton 3
-     */
-    @FXML
-    private Button boutton3;
-    /**
-     * boutton 4
-     */
-    @FXML
-    private Button boutton4;
-    /**
-     * boutton 5
-     */
-    @FXML
-    private Button boutton5;
-    /**
-     * boutton 6
-     */
-    @FXML
-    private Button boutton6;
-    /**
-     * boutton 7
-     */
-    @FXML
-    private Button boutton7;
-    /**
-     * boutton 8
-     */
-    @FXML
-    private Button boutton8;
-    /**
-     * boutton 9
-     */
-    @FXML
-    private Button boutton9;
-    /**
-     * boutton retour
-     */
-    @FXML
-    private Button bouttonBack;
-    /**
-     * boutton égal
-     */
-    @FXML
-    private Button bouttonEgal;
-    /**
-     * boutton exposant
-     */
-    @FXML
-    private Button bouttonExp;
-    /**
-     * boutton -/+
-     */
-    @FXML
-    private Button bouttonMP;
-    /**
-     * boutton Mr
-     */
     @FXML
     private Button bouttonMr;
-    /**
-     * boutton multiplication
-     */
-    @FXML
-    private Button bouttonMult;
-    /**
-     * boutton d'équation 1
-     */
-    @FXML
-    private Button bouttonNoFx1;
-    /**
-     * boutton d'équation 2
-     */
-    @FXML
-    private Button bouttonNoFx2;
-    /**
-     * boutton d'équation 3
-     */
-    @FXML
-    private Button bouttonNoFx3;
-    /**
-     * boutton d'équation 4
-     */
-    @FXML
-    private Button bouttonNoFx4;
-    /**
-     * boutton d'équation 5
-     */
-    @FXML
-    private Button bouttonNoFx5;
-    /**
-     * boutton d'équation 6
-     */
-    @FXML
-    private Button bouttonNoFx6;
-    /**
-     * boutton d'équation 7
-     */
-    @FXML
-    private Button bouttonNoFx7;
-    /**
-     * boutton M+
-     */
-    @FXML
-    private Button bouttonPM;
-    /**
-     * boutton ")"
-     */
-    @FXML
-    private Button bouttonParFermer;
-    /**
-     * boutton "("
-     */
-    @FXML
-    private Button bouttonParOuverte;
-    /**
-     * boutton plus
-     */
-    @FXML
-    private Button bouttonPlus;
-    /**
-     * boutton point
-     */
-    @FXML
-    private Button bouttonPoint;
-    /**
-     * boutton division
-     */
-    @FXML
-    private Button bouttonSlash;
-    /**
-     * boutton racine carrée
-     */
-    @FXML
-    private Button bouttonSqrt;
-    /**
-     * boutton vider affichage (X)
-     */
-    @FXML
-    private Button bouttonX;
-    /**
-     * case à cocher du menu fonctions
-     */
     @FXML
     private CheckMenuItem checkMenuChangement;
-    /**
-     * option "ajouter" du menu contextuel des fonctions
-     */
-    @FXML
-    private MenuItem contextAdd;
-    /**
-     * option "effacer" du menu contextuel des fonctions
-     */
-    @FXML
-    private MenuItem contextEffacer;
-    /**
-     * menu contextuel des fonctions
-     */
-    @FXML
-    private ContextMenu contextMenu;
-    /**
-     * option "modifier" du menu contextuel des fonctions
-     */
-    @FXML
-    private MenuItem contextModifier;
-    /**
-     * Gestionaire de disposition parent de tous les boutons centraux
-     */
-    @FXML
-    private GridPane gridPaneBouttons;
-
-    /**
-     * Item "à propos" du menu "Aide" de la barre de menu
-     */
-    @FXML
-    private MenuItem itemAPropos;
-
-    /**
-     * Affichage principal de la calculatrice
-     */
     @FXML
     private Label labelAffichage;
-
-    /**
-     * Étiquette "fonctions"
-     */
-    @FXML
-    private Label labelFonctions;
-    /**
-     * Étiquette "Historique"
-     */
-    @FXML
-    private Label labelHistorique;
-
     /**
      * Liste des fonctions
      */
@@ -258,85 +48,43 @@ public class CalculatriceController implements Initializable {
      */
     @FXML
     private ListView<String> listViewHistorique;
-
-    /**
-     * Menu "Aide" de la barre de menu
-     */
-    @FXML
-    private Menu menuAide;
-
-    /**
-     * Barre de menu du haut de la page
-     */
-    @FXML
-    private MenuBar menuBarTop;
-
-    /**
-     * Menu "Fonctions" de la barre de menu
-     */
-    @FXML
-    private Menu menuFct;
-
     /**
      * Gestionaire de disposition "BorderPane"
      * Racine de la scène.
      */
     @FXML
     private BorderPane root;
-
-    /**
-     * VBox du paneau droit de "root"
-     */
-    @FXML
-    private VBox vBoxDroite;
-    /**
-     * VBox du paneau gauche de "root"
-     */
-    @FXML
-    private VBox vBoxGauche;
-
-    @FXML
-    private ListView<Simulation> listViewSimulations;
-
-    @FXML
-    private ListView<Equation> listViewEquations;
-
-    @FXML
-    private ListView<Variable> listViewVariables;
-
-    @FXML
-    private TextField testFieldTemps;
-
     /**
      * Liste simple stockant les objets de type "Fonctions"
      * Permettra d'accéder les Fonctions facilement
      */
     private List<Fonctions> listFct;
-
     /**
      * Map contenant l'historique des calculs.
      * La clée est une chaine de charactère représentant l'équation qui sera affichée dans la ListView d'historique.
      * La valeur associée aux clées sont des objets de type Expressions de MathParser
      */
     private Map<String, Expression> mapHistorique;
-
     /**
      * Même principe que mapHistorique, mais pour la ListView des Fonctions.
      * La valeur associée à la clée est plutôt une Fonctions
      */
     private Map<String, Fonctions> mapFonctions;
-
-    public Etat etatTest;
-
-    public SimulationService simService;
-
-    public Equation equation1;
-    public Equation equation2;
-    public Equation equation3;
-    public Equation equation4;
-
-
-
+    /**
+     * la listView de s simulations
+     */
+    @FXML
+    private ListView<Simulation> listViewSimulations;
+    /**
+     * la listView des équations
+     */
+    @FXML
+    private ListView<Equation> listViewEquations;
+    /**
+     * la listView des variables
+     */
+    @FXML
+    private ListView<Variable> listViewVariables;
 
     /**
      * Méthode redéfinie de Initializable. Initialise le controlleur.
@@ -378,6 +126,200 @@ public class CalculatriceController implements Initializable {
         });
 
 
+    }
+
+
+    /**
+     * permet de retirer de la listView l'équation sélectionnée
+     * @param event clique de l'option retirer du menu contextuel
+     */
+    @FXML
+    void retirerEquation(ActionEvent event) {
+        if (!listViewEquations.getSelectionModel().isEmpty()) {
+            listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection().remove(listViewEquations.getSelectionModel().getSelectedItem());
+            refreshEqu();
+        }
+    }
+    /**
+     * permet de retirer de la listView la simulation sélectionnée
+     * @param event clique de l'option retirer du menu contextuel
+     */
+    @FXML
+    void retirerSimulation(ActionEvent event) {
+        listViewSimulations.getItems().remove(listViewSimulations.getSelectionModel().getSelectedItem());
+        listViewVariables.getItems().clear();
+        refreshVar();
+        refreshEqu();
+    }
+    /**
+     * permet de retirer de la listView la variable sélectionnée
+     * @param event clique de l'option retirer du menu contextuel
+     */
+    @FXML
+    void retirerVariable(ActionEvent event) {
+        if (!listViewSimulations.getSelectionModel().isEmpty()) {
+            listViewSimulations.getSelectionModel().getSelectedItem().getPlusRecentEtat().getVariableList().remove(listViewVariables.getSelectionModel().getSelectedItem());
+            refreshVar();
+        }
+    }
+
+
+    /**
+     * permet d'ajouter une simulation selon les informations recueillies dans un dialogue à cet égard
+     * @param actionEvent le clique du boutton ajouter du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    public void ajouterSimulation(ActionEvent actionEvent) throws IOException {
+        Simulation simulationSaisie = DialoguesUtils.dialogSimulation(false, null);
+
+        if (simulationSaisie != null) {
+            listViewSimulations.getItems().add(simulationSaisie);
+        }
+
+        listViewSimulations.refresh();
+        listViewVariables.refresh();
+    }
+    /**
+     * permet d'ajouter une équation selon les informations recueillies dans un dialogue à cet égard
+     * @param event le clique du boutton ajouter du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void ajouterEquation(ActionEvent event) throws IOException {
+        Equation equationSaisie = DialoguesUtils.dialogueEquation(null);
+
+        if (equationSaisie != null) {
+            listViewVariables.getSelectionModel().getSelectedItem().ajouteEquation(equationSaisie);
+        }
+        refreshEqu();
+    }
+    /**
+     * permet d'ajouter une variable selon les informations recueillies dans un dialogue à cet égard
+     * @param event le clique du boutton ajouter du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void ajouterVariable(ActionEvent event) throws IOException {
+        Variable variableSaisie = DialoguesUtils.dialogueVariable(false, null);
+
+        if (variableSaisie != null) {
+            listViewSimulations.getSelectionModel().getSelectedItem().getPlusRecentEtat().addVariable(variableSaisie);
+        }
+        refreshVar();
+    }
+
+
+    /**
+     * permet de modifier la simulation sélectionnée selon les informations recueillies dans un dialogue à cet égard
+     * @param event le clique du boutton modifier du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void modifierSimulation(ActionEvent event) throws IOException {
+        if (!listViewSimulations.getSelectionModel().isEmpty()) {
+            DialoguesUtils.dialogSimulation(true, listViewSimulations.getSelectionModel().getSelectedItem());
+        }
+        listViewSimulations.refresh();
+    }
+    /**
+     * permet de modifier la variable sélectionnée selon les informations recueillies dans un dialogue à cet égard
+     * @param event le clique du boutton modifier du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void modifierVariable(ActionEvent event) throws IOException {
+        if (!listViewVariables.getSelectionModel().isEmpty()) {
+            DialoguesUtils.dialogueVariable(true, listViewVariables.getSelectionModel().getSelectedItem());
+        }
+        refreshVar();
+    }
+    /**
+     * permet de modifier l'équation sélectionnée selon les informations recueillies dans un dialogue à cet égard
+     * @param event le clique du boutton modifier du menu contextuel
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void modifierEquation(ActionEvent event) throws IOException {
+        if (!listViewEquations.getSelectionModel().isEmpty()) {
+            DialoguesUtils.dialogueEquation(listViewEquations.getSelectionModel().getSelectedItem());
+        }
+        listViewEquations.refresh();
+    }
+
+    /**
+     * permet de charger une simulation selon un fichier .sim choisi dans un dialogue de sélectiond de fichier
+     * @param event le clique du boutton charger
+     * @throws IOException une exception lancée par le dialogue
+     */
+    @FXML
+    void charger(ActionEvent event) throws IOException {
+        Simulation simulationChargee = DialoguesUtils.openFileDialog(root.getScene().getWindow());
+
+        if (simulationChargee != null) {
+            listViewSimulations.getItems().add(simulationChargee);
+        }
+    }
+
+    /**
+     * Lance la simulation dans une nouvelle fenêtre selon l'équation sélectionnée dans le listView des équations
+     * @param event le clique du boutton simuler
+     * @throws IOException exception lancée par la méthode load
+     */
+    @FXML
+    void lancerSimulation(ActionEvent event) throws IOException {
+        Stage simStage = new Stage();
+        FXMLLoader load = new FXMLLoader(SimulationApp.class.getResource("Simulateur.fxml"));
+        Parent root = load.load();
+        SimulateurController controller = load.getController();
+
+        if (!listViewEquations.getSelectionModel().isEmpty()) {
+            controller.setSimulationActuelle(listViewSimulations.getSelectionModel().getSelectedItem());
+            controller.setEquationSelectionnee(listViewEquations.getSelectionModel().getSelectedItem());
+
+            simStage.setScene(new Scene(root));
+            simStage.show();
+        } else {
+            System.out.println("Aucune simulation sélectionnée");
+        }
+    }
+
+    /**
+     * permet de sauvegarder la simulation sélectionnée dans un fichier .sim à un emplacement choisi par un dialogue
+     * de sélection de fichier.
+     * @param event le clique du boutton sauvegarder
+     * @throws IOException une exception lancée par le dialogue de sélection de fichier
+     */
+    @FXML
+    void save(ActionEvent event) throws IOException {
+        if (!listViewSimulations.getSelectionModel().isEmpty()) {
+            DialoguesUtils.saveFileDialog(root.getScene().getWindow(), listViewSimulations.getSelectionModel().getSelectedItem());
+            System.out.println("saved");
+        }
+    }
+
+    /**
+     * permet de mettre à jour la listeView des équation
+     */
+    private void refreshEqu() {
+        listViewEquations.getItems().clear();
+        if (!listViewVariables.getSelectionModel().isEmpty()) {
+            listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
+        }
+        listViewEquations.refresh();
+
+    }
+
+    /**
+     * permet de mettre à jour la listView des variables
+     */
+    private void refreshVar() {
+        listViewVariables.getItems().clear();
+        refreshEqu();
+        if (!listViewSimulations.getSelectionModel().isEmpty()) {
+            listViewVariables.getItems().addAll(listViewSimulations.getSelectionModel().getSelectedItem().getPlusRecentEtat().getVariableList());
+        }
+        listViewVariables.refresh();
     }
 
     /**
@@ -693,158 +635,46 @@ public class CalculatriceController implements Initializable {
     }
 
 
-    @FXML
-    void retirerEquation(ActionEvent event) {
-        if(!listViewEquations.getSelectionModel().isEmpty()){
-            listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection().remove(listViewEquations.getSelectionModel().getSelectedItem());
-            refreshEqu();
-        }
-    }
-
-    @FXML
-    void retirerSimulation(ActionEvent event) {
-        listViewSimulations.getItems().remove(listViewSimulations.getSelectionModel().getSelectedItem());
-        listViewVariables.getItems().clear();
-        refreshVar();
-        refreshEqu();
-    }
-
-    @FXML
-    void retirerVariable(ActionEvent event) {
-        if(!listViewSimulations.getSelectionModel().isEmpty()){
-            listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList().remove(listViewVariables.getSelectionModel().getSelectedItem());
-            refreshVar();
-        }
-    }
-
-
-    @FXML
-    public void ajouterSimulation(ActionEvent actionEvent) throws IOException {
-        Simulation simulationSaisie = DialoguesUtils.dialogSimulation(false, null);
-
-        if(simulationSaisie != null){
-            listViewSimulations.getItems().add(simulationSaisie);
-        }
-
-        listViewSimulations.refresh();
-        listViewVariables.refresh();
-    }
-    @FXML
-    void ajouterEquation(ActionEvent event) throws IOException {
-        Equation equationSaisie = DialoguesUtils.dialogueEquation(null);
-
-        if(equationSaisie != null){
-            listViewVariables.getSelectionModel().getSelectedItem().ajouteEquation(equationSaisie);
-        }
-        refreshEqu();
-    }
-
-    @FXML
-    void ajouterVariable(ActionEvent event) throws IOException {
-        Variable variableSaisie = DialoguesUtils.dialogueVariable(false, null);
-
-        if(variableSaisie != null){
-            listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().addVariable(variableSaisie);
-        }
-
-        refreshVar();
-    }
-
-
-    @FXML
-    void modifierSimulation(ActionEvent event) throws IOException {
-        if(!listViewSimulations.getSelectionModel().isEmpty()){
-            DialoguesUtils.dialogSimulation(true, listViewSimulations.getSelectionModel().getSelectedItem());
-        }
-        listViewSimulations.refresh();
-    }
-
-    @FXML
-    void modifierVariable(ActionEvent event) throws IOException {
-        if(!listViewVariables.getSelectionModel().isEmpty()) {
-            DialoguesUtils.dialogueVariable(true, listViewVariables.getSelectionModel().getSelectedItem());
-        }
-        refreshVar();
-    }
-
-    @FXML
-    void modifierEquation(ActionEvent event) throws IOException {
-        if(!listViewEquations.getSelectionModel().isEmpty()) {
-            DialoguesUtils.dialogueEquation(listViewEquations.getSelectionModel().getSelectedItem());
-        }
-        listViewEquations.refresh();
-    }
-
-    @FXML
-    void charger(ActionEvent event) throws IOException {
-        Simulation simulationChargee = DialoguesUtils.openFileDialog(root.getScene().getWindow());
-
-        if(simulationChargee != null){
-            listViewSimulations.getItems().add(simulationChargee);
-        }
-    }
-
-    @FXML
-    void lancerSimulation(ActionEvent event) throws IOException {
-        Stage simStage = new Stage();
-        FXMLLoader load = new FXMLLoader(SimulationApp.class.getResource("Simulateur.fxml"));
-        Parent root = load.load();
-        SimulateurController controller = load.getController();
-
-        if(!listViewEquations.getSelectionModel().isEmpty()){
-            controller.setSimulationActuelle(listViewSimulations.getSelectionModel().getSelectedItem());
-            controller.setEquationSelectionnee(listViewEquations.getSelectionModel().getSelectedItem());
-
-            simStage.setScene(new Scene(root));
-            simStage.show();
-        }else {
-            System.out.println("Aucune simulation sélectionnée");
-        }
-    }
-
-    @FXML
-    void save(ActionEvent event) throws IOException {
-        if(!listViewSimulations.getSelectionModel().isEmpty()){
-            DialoguesUtils.saveFileDialog(root.getScene().getWindow(), listViewSimulations.getSelectionModel().getSelectedItem());
-            System.out.println("saved");
-        }
-    }
-
-    private void refreshEqu(){
-        listViewEquations.getItems().clear();
-        if(!listViewVariables.getSelectionModel().isEmpty()){
-            listViewEquations.getItems().addAll(listViewVariables.getSelectionModel().getSelectedItem().getEquationsCollection());
-        }
-        listViewEquations.refresh();
-
-    }
-
-    private void refreshVar(){
-        listViewVariables.getItems().clear();
-        refreshEqu();
-        if(!listViewSimulations.getSelectionModel().isEmpty()){
-            listViewVariables.getItems().addAll(listViewSimulations.getSelectionModel().getSelectedItem().getLastEtat().getVariableList());
-        }
-        listViewVariables.refresh();
-    }
-
-    static class simCell extends ListCell<Simulation>{
+    /**
+     * Classe innterne SimCell
+     */
+    static class simCell extends ListCell<Simulation> {
+        /**
+         * le string à afficher dans la cellule
+         */
         private String stringAAfficher;
+        /**
+         * le hbox de la cellule
+         */
         private HBox hBox;
+        /**
+         * le label dans lequel ira le stringAAfficher
+         */
         private Label label;
 
-        public simCell(){
+        /**
+         * constructeur de la classe simCell
+         */
+        public simCell() {
             label = new Label();
             hBox = new HBox(label);
         }
-        @Override
-        public void updateItem(Simulation sim, boolean empty){
-            super.updateItem(sim,empty);
 
-            if(sim == null || empty){
+        /**
+         * met à jour la valeur et l'affichage de la cellule
+         * @param sim   The new item for the cell.
+         * @param empty whether or not this cell represents data from the list. If it
+         *              is empty, then it does not represent any domain data, but is a cell
+         *              being used to render an "empty" row.
+         */
+        @Override
+        public void updateItem(Simulation sim, boolean empty) {
+            super.updateItem(sim, empty);
+
+            if (sim == null || empty) {
                 setItem(null);
                 setGraphic(null);
-            }else{
+            } else {
                 stringAAfficher = sim.getName();
                 setItem(sim);
                 label.setText(stringAAfficher);
@@ -852,25 +682,44 @@ public class CalculatriceController implements Initializable {
             }
         }
     }
+    /**
+     * Classe interne varCell
+     */
+    static class varCell extends ListCell<Variable> {
 
-    static class varCell extends ListCell<Variable>{
         private String stringAAfficher;
+        /**
+         * le hbox de la cellule
+         */
         private HBox hBox;
+        /**
+         * le label dans lequel ira le stringAAfficher
+         */
         private Label label;
 
-        public varCell(){
+        /**
+         * contructeur de la classe varCell
+         */
+        public varCell() {
             label = new Label();
             hBox = new HBox(label);
         }
 
+        /**
+         * met à jour la valeur et l'affichage de la cellule
+         * @param variable The new item for the cell.
+         * @param empty    whether or not this cell represents data from the list. If it
+         *                 is empty, then it does not represent any domain data, but is a cell
+         *                 being used to render an "empty" row.
+         */
         @Override
-        public void updateItem(Variable variable, boolean empty){
-            super.updateItem(variable,empty);
+        public void updateItem(Variable variable, boolean empty) {
+            super.updateItem(variable, empty);
 
-            if(variable == null || empty){
+            if (variable == null || empty) {
                 setItem(null);
                 setGraphic(null);
-            }else{
+            } else {
                 stringAAfficher = variable.getName();
                 setItem(variable);
                 label.setText(stringAAfficher + " = " + variable.getValue());
@@ -878,25 +727,46 @@ public class CalculatriceController implements Initializable {
             }
         }
     }
-
-    static class eqCell extends ListCell<Equation>{
+    /**
+     * Classe interne varCell
+     */
+    static class eqCell extends ListCell<Equation> {
+        /**
+         * le string à afficher dans la cellule
+         */
         private String stringAAfficher;
+        /**
+         * le hbox de la cellule
+         */
         private HBox hBox;
+        /**
+         * le label dans lequel ira le stringAAfficher
+         */
         private Label label;
 
-        public eqCell(){
+        /**
+         * contructeur de la classe eqCell
+         */
+        public eqCell() {
             label = new Label();
             hBox = new HBox(label);
         }
 
+        /**
+         * met à jour la valeur et l'affichage de la cellule
+         * @param equation The new item for the cell.
+         * @param empty    whether or not this cell represents data from the list. If it
+         *                 is empty, then it does not represent any domain data, but is a cell
+         *                 being used to render an "empty" row.
+         */
         @Override
-        public void updateItem(Equation equation, boolean empty){
-            super.updateItem(equation,empty);
+        public void updateItem(Equation equation, boolean empty) {
+            super.updateItem(equation, empty);
 
-            if(equation == null || empty){
+            if (equation == null || empty) {
                 setItem(null);
                 setGraphic(null);
-            }else{
+            } else {
                 stringAAfficher = equation.getExpression();
                 setItem(equation);
                 label.setText(stringAAfficher);

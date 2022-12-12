@@ -5,84 +5,50 @@ import org.mariuszgromada.math.mxparser.Function;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.*;
+import java.util.List;
 
 
+/**
+ * Classe de la simulation
+ *
+ * @author Vincent Fortier
+ */
 public class Simulation implements Serializable {
 
+    /**
+     * nom de la simulation
+     */
     private String name;
+    /**
+     * Liste de tous les étas simulés de la simulation
+     */
     private List<Etat> historique = new ArrayList<>();// l'état 0 est le premier état de l'historique
 
+    /**
+     * Constructeur de la classe simulation
+     * @param name nom de la simulation
+     * @param initial état initial de la simulation
+     */
     public Simulation(String name, Etat initial) {
         this.name = name;
         ajouteDansHistorique(initial);
 
     }
 
-    public static void main(String[] args) {
-        Etat etat = new Etat();
-
-        Variable variableY = new Variable("y",10);
-        Equation equationGravite = new Equation("y(t)","f(t,y)=(-9.8(0.1)(t^2)/2)+y");
-
-        variableY.ajouteEquation(equationGravite);
-        etat.addVariable(variableY);
-        Simulation simulation = new Simulation("test",etat);
-        Argument[] arguments = new Argument[2];
-        arguments[0] = new Argument("t",1);
-        arguments[1] = new Argument("y",100);
-        System.out.println(simulation.convertEquationToFunction(equationGravite).checkSyntax());
-        System.out.println(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName());
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments));
-        Argument[] arguments2 = new Argument[2];
-        arguments2[0] = new Argument("t",2);
-        arguments2[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments2));
-        Argument[] arguments3 = new Argument[2];
-        arguments3[0] = new Argument("t",3);
-        arguments3[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments2));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments3));
-        Argument[] arguments4 = new Argument[2];
-        arguments4[0] = new Argument("t",4);
-        arguments4[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments3));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments4));
-        Argument[] arguments5 = new Argument[2];
-        arguments5[0] = new Argument("t",5);
-        arguments5[1] = new Argument("y",simulation.convertEquationToFunction(equationGravite).calculate(arguments4));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(arguments5));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(new Argument(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName(),1)));
-        System.out.println(simulation.convertEquationToFunction(equationGravite).calculate(new Argument(simulation.convertEquationToFunction(equationGravite).getArgument("t").getArgumentName(),2)));
-
-        System.out.println(etat);
-        Etat etat1 = new Etat(simulation.simulateStep(0,1,etat));
-        System.out.println(etat1);
-        Etat etat2 = new Etat(simulation.simulateStep(1,1,etat1));
-        System.out.println(etat2);
-        Etat etat3 = new Etat(simulation.simulateStep(2,1,etat2));
-        System.out.println(etat3);
-        Etat etat4 = new Etat(simulation.simulateStep(3,1,etat3));
-        System.out.println(etat4);
-
-    }
-
-
-    public List<Function> convertEquationsToFunctions(Collection<Equation> equations) {
-        List<Function> retList = new ArrayList<>();
-        for (Equation equation : equations) {
-            retList.add(convertEquationToFunction(equation));
-        }
-        return retList;
-    }
-
+    /**
+     * Convertis l'équation passée en argument en fonction
+     * @param equation équation à convertir
+     * @return l'équation sous forme de fonction
+     */
     public Function convertEquationToFunction(Equation equation) {
         return new Function(equation.getExpression());
     }
 
-    public List<Function> getFucntionListFromVariable(Variable variable){
-
-        return convertEquationsToFunctions(variable.getEquationsCollection());
-    }
-
+    /**
+     * Retourne l'état de l'historique qui est associé à l'indice passé en argument
+     * @param step le numéro (ou indice) de l'état à retourne
+     * @return l'état associé à l'indice passé en argument
+     */
     public Etat getHistorique(int step) {
         Etat retEtat = null;
 
@@ -93,23 +59,59 @@ public class Simulation implements Serializable {
         return retEtat;
     }
 
-    public Etat getLastEtat() {
+    /**
+     * Retourne l'historique des états simulés de la simulation sous forme de liste
+     * @return l'historique sous forme de liste d'états
+     */
+    public List<Etat> getHistorique() {
+        return historique;
+    }
+
+    /**
+     * Permet de définire l'historique de la simulation
+     * @param historique l'historique à définire
+     */
+    public void setHistorique(List<Etat> historique) {
+        this.historique = historique;
+    }
+
+
+    /**
+     * retourne le dernier état de l'historique de la simulation
+     * @return le dernier état qui a été simulé
+     */
+    public Etat getPlusRecentEtat() {
         return historique.get(historique.size()-1);
     }
 
+    /**
+     * Permet de mettre un état passé en argument dans l'historique de la simulation
+     * @param nouvelEtat état à mettre dans l'historique
+     */
     public void ajouteDansHistorique(Etat nouvelEtat) {
         historique.add(nouvelEtat);
     }
 
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     * retourne le nom de la simulation
+     * @return le nom de la simulation
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * définit le nom de la simulation selon une chaine de caractère passée en arguement
+     * @param name le nom voulu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * crée et retourne une chaine de caractère contenant les informations de la simulation
+     * @return une chaine de caractère contenant les informations de la simulation
+     */
     @Override
     public String toString() {
         return "Simulation{" +
@@ -118,15 +120,13 @@ public class Simulation implements Serializable {
                 '}';
     }
 
-
-    public List<Etat> getHistorique() {
-        return historique;
-    }
-
-    public void setHistorique(List<Etat> historique) {
-        this.historique = historique;
-    }
-
+    /**
+     * Calcul la nouvelle valeur de chaque variable selon les équations qu'elles contiennent et le temps.
+     * @param t le temps écoulé depuis le début de la simulation
+     * @param dt l'interval de temps depuis le dernier pas de temps
+     * @param etatActuel l'état actuel de la simulation
+     * @return un nouvel état contenant les variables calculées
+     */
     public Etat simulateStep(float t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
 
