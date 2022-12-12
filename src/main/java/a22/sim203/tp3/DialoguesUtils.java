@@ -50,15 +50,15 @@ public class DialoguesUtils {
 
         fichierACharger = fileChooser.showOpenDialog(ownerWindow);
 
-        ObjectInputStream bw = null;
-        try {
-            bw = new ObjectInputStream(new FileInputStream(fichierACharger));
-            simulationChargee = (Simulation)bw.readObject() ;
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }finally {
-            bw.close();
+        if(fichierACharger != null){
+            ObjectInputStream bw = new ObjectInputStream(new FileInputStream(fichierACharger));
+            try {
+                simulationChargee = (Simulation)bw.readObject() ;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }finally {
+                bw.close();
+            }
         }
 
         return simulationChargee;

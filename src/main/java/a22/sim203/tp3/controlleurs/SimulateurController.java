@@ -2,6 +2,7 @@ package a22.sim203.tp3.controlleurs;
 
 import a22.sim203.tp3.DialoguesUtils;
 import a22.sim203.tp3.simulation.*;
+import javafx.collections.ListChangeListener;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,12 +11,12 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import org.mariuszgromada.math.mxparser.Argument;
-import org.mariuszgromada.math.mxparser.Function;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 public class SimulateurController implements Initializable {
 
@@ -31,8 +32,12 @@ public class SimulateurController implements Initializable {
     @FXML
     private Button bouttonModifier;
 
+
     @FXML
-    private TextField testFieldTemps;
+    private Button bouttonPause;
+
+    @FXML
+    private TextField textFieldTemps;
 
     @FXML
     private ListView<Variable> listViewVariablesSimulateur;
@@ -49,6 +54,9 @@ public class SimulateurController implements Initializable {
     @FXML
     private CheckBox rangeStatique;
 
+    @FXML
+    private TextField textFieldInterval;
+
     private LineChart<Number, Number> lineChartSimulateur;
 
     private NumberAxis xAxis;
@@ -56,15 +64,27 @@ public class SimulateurController implements Initializable {
     private NumberAxis yAxis;
 
 
-    private XYChart.Series<Number, Number> serie;
+    private XYChart.Series<Number, Number> serieActuelle;
 
-    private SimulationService simService;
+    private SimulationService serviceActuel;
 
-    private Simulation simulation;
+    private SimulationService serviceAvantPause;
 
-    private Equation equation;
+    private Simulation simulationActuelle;
 
-    private int dtTheorique = 1;
+    private float pauseTime;
+
+    private Etat etatAvantPause;
+
+    private double dtAvantPause;
+
+    private boolean isPaused = false;
+
+    private int variableIndex = 0;
+    private Equation equationSelectionnee;
+
+    private Map<String, XYChart.Series> seriesMap;
+    private double intervalTheorique;
 
 
     @Override
@@ -75,137 +95,172 @@ public class SimulateurController implements Initializable {
         lineChartSimulateur = new LineChart<>(xAxis, yAxis);
         xAxis.setAutoRanging(false);
         yAxis.setAutoRanging(true);
-
         xAxis.setLowerBound(0);
         yAxis.setLowerBound(0);
-
         root.setCenter(lineChartSimulateur);
-
-        serie = new XYChart.Series<>();
-        serie.setName("seriePirncipale");
-        lineChartSimulateur.getData().add(serie);
-
         listViewVariablesSimulateur.setCellFactory((e) -> new varCell());
-
         maxY.setText("");
         maxX.setText("");
-        maxAuto.setText("");
+        seriesMap = new TreeMap<>();
 
         setDisableBoundaryControls(true);
-        rangeStatique.selectedProperty().addListener((e)->{
+        rangeStatique.selectedProperty().addListener((e) -> {
             setDisableBoundaryControls(!rangeStatique.isSelected());
         });
 
-        listViewVariablesSimulateur.selectionModelProperty().addListener((a,s,d)->{
-            setDisableSimulationControls(listViewVariablesSimulateur.getSelectionModel().isEmpty());
+        listViewVariablesSimulateur.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Variable>() {
+            @Override
+            public void onChanged(Change<? extends Variable> c) {
+                setDisableSimulationControls(listViewVariablesSimulateur.getSelectionModel().isEmpty());
+                try {
+                    updateGraph();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println(lineChartSimulateur.getData());
+            }
         });
+
+
     }
 
     @FXML
+    void simPause(ActionEvent event) {
+        if (!serviceActuel.getStop() && serviceActuel.getState() == Worker.State.RUNNING) {
+            serviceActuel.setStop();
+            isPaused = true;
+            pauseTime = serviceActuel.getT();
+            dtAvantPause = serviceActuel.getIntervalTheorique();
+            etatAvantPause = new Etat(serviceActuel.getValue());
+        }
+    }
+
+    public Variable getVariableIndex() {
+        return listViewVariablesSimulateur.getItems().get(variableIndex);
+    }
+
+    public void updateGraph() throws InterruptedException {
+        lineChartSimulateur.setAnimated(false);
+        lineChartSimulateur.getData().clear();
+        lineChartSimulateur.getData().add(seriesMap.get(listViewVariablesSimulateur.getSelectionModel().getSelectedItem().getName()));
+        lineChartSimulateur.setAnimated(true);
+    }
+
+
+    @FXML
     public void simStart(ActionEvent event) {
-        simService = new SimulationService("FE", new Etat(simulation.getLastEtat()));
-        simService.setIntervalTheorique(this.dtTheorique);
-
-        Variable currentlySelectedVariable = listViewVariablesSimulateur.getSelectionModel().getSelectedItem();
-
-        if (currentlySelectedVariable != null) {
-            serie.setName(currentlySelectedVariable.getName());
-            setGraphBoundaries(currentlySelectedVariable);
-            simService.setCurentlySimulatedVariable(currentlySelectedVariable);
-
-            if(!xAxis.isAutoRanging()){
-                simService.setTimeBoundary(xAxis.getUpperBound());
-            }
-
-            if(!yAxis.isAutoRanging()){
-                simService.setValueBoundary(yAxis.getUpperBound());
-            }
-
-            simService.start();
+        if (isPaused) {
+            serviceActuel = new SimulationService(simulationActuelle.getName(), etatAvantPause,pauseTime,dtAvantPause);
+            isPaused = false;
+        } else{
+            clearSeries();
+            modifierIntervalTheorique();
+            serviceActuel = new SimulationService(simulationActuelle.getName(), new Etat(simulationActuelle.getLastEtat()),0,getIntervalTheorique());
+            textFieldInterval.setText(serviceActuel.getIntervalTheorique()+"");
         }
 
-        simService.setOnRunning((event1 -> {
-            listViewVariablesSimulateur.setDisable(true);
+        setGraphBoundaries();
+        if (getVariableIndex() != null) {
+            serviceActuel.setCurentlySimulatedVariable(getVariableIndex());
+
+            if (!xAxis.isAutoRanging()) {
+                serviceActuel.setTimeBoundary(xAxis.getUpperBound());
+            }
+
+            if (!yAxis.isAutoRanging()) {
+                serviceActuel.setValueBoundary(yAxis.getUpperBound());
+            }
+            serviceActuel.start();
+        }
+
+        serviceActuel.setOnRunning((event1 -> {
+            textFieldInterval.setDisable(true);
             setDisableBoundaryControls(true);
         }));
 
-        simService.setOnSucceeded((i) -> {
-            System.out.println("complété");
-            listViewVariablesSimulateur.setDisable(false);
-            if(rangeStatique.isSelected()){
-                setDisableBoundaryControls(false);
-            }
-
-            if(xAxis.isAutoRanging()){
-                xAxis.setUpperBound(simService.getT()+xAxis.getTickUnit());
-            }
-
-            serie.getData().add(new XYChart.Data<>(simService.getT(), simService.getValue().getVariable(currentlySelectedVariable.getName()).getValue()));
-            listViewVariablesSimulateur.refresh();
-            simService.setStop();
-            serie.getData().clear();
+        serviceActuel.setOnSucceeded((i) -> {
+            activerUI();
         });
 
-        simService.valueProperty().addListener((a, o, n) -> {
-            System.out.println(n.getVariableList());
-            serie.getData().add(new XYChart.Data<>(simService.getT(), simService.getValue().getVariable(currentlySelectedVariable.getName()).getValue()));
+        setupValueListener();
+    }
 
-            testFieldTemps.setText("" + simService.getT());
+    public void modifierIntervalTheorique(){
+        double intervalTheorique = 1;
+        if(validDouble(textFieldInterval.getText()) && Double.parseDouble(textFieldInterval.getText())>0){
+            intervalTheorique = Double.parseDouble(textFieldInterval.getText());
+        }
+        this.intervalTheorique = intervalTheorique;
+    }
 
-//            if(!xAxis.isAutoRanging() && n.getVariable(nomVariableSelectionnee).getValue() >= xAxis.getUpperBound()){
-//                xAxis.setUpperBound(simService.getT());
-//                yAxis.setUpperBound(n.getVariable(nomVariableSelectionnee).getValue());
-//                simStop(new ActionEvent());
-//            }else if(!yAxis.isAutoRanging() && n.getVariable(nomVariableSelectionnee).getValue() >= yAxis.getUpperBound()){
-//                xAxis.setUpperBound(simService.getT());
-//                yAxis.setUpperBound(simService.getSimulation().getLastEtat().getVariable(nomVariableSelectionnee).getValue());
-//                simStop(new ActionEvent());
-//            }
+    public double getIntervalTheorique(){
+        return this.intervalTheorique;
+    }
+
+    public void clearSeries(){
+        for(int i = 0; i < seriesMap.size(); i++){
+            seriesMap.get(listViewVariablesSimulateur.getItems().get(i).getName()).getData().clear();
+        }
+    }
+
+
+    public void setupValueListener(){
+        serviceActuel.valueProperty().addListener((a, o, n) -> {
+            for(int i = 0; i<n.getVariableList().size(); i++) {
+                if(rangeStatique.isSelected() && n.getVariableList().get(i).getValue()>yAxis.getUpperBound()){
+                    simStop(new ActionEvent());
+                }else {
+                    seriesMap.get(n.getVariableList().get(i).getName()).getData().add(new XYChart.Data<>(serviceActuel.getTSecondes(), serviceActuel.getValue().getVariable(n.getVariableList().get(i).getName()).getValue()));
+                }
+
+            }
+            textFieldTemps.setText("" + serviceActuel.getTSecondes());
         });
     }
 
     @FXML
     public void simStop(ActionEvent event) {
-        if (simService != null && simService.isRunning() && simService.getState() != Worker.State.CANCELLED) {
-            simService.setStop();
+        if (serviceActuel != null && serviceActuel.isRunning() && serviceActuel.getState() != Worker.State.CANCELLED) {
+            serviceActuel.cancel();
+            activerUI();
         }
     }
 
-    public void setSimulation(Simulation simulation) {
-        this.simulation = simulation;
-        listViewVariablesSimulateur.getItems().addAll(simulation.getLastEtat().getVariableList());
+    public void activerUI(){
+        if(rangeStatique.isSelected()){
+            maxX.setDisable(false);
+            maxY.setDisable(false);
+        }
+        textFieldInterval.setDisable(false);
     }
 
-    public void setEquation(Equation equation) {
-        this.equation = equation;
+    public void setEquationSelectionnee(Equation equationSelectionnee) {
+        this.equationSelectionnee = equationSelectionnee;
     }
 
-
-    @FXML
-    void saveToCustomFile(ActionEvent event) {
-
+    public void setSimulationActuelle(Simulation simulationActuelle) {
+        this.simulationActuelle = simulationActuelle;
+        listViewVariablesSimulateur.getItems().addAll(simulationActuelle.getLastEtat().getVariableList());
+        for(int i = 0; i < simulationActuelle.getLastEtat().getVariableList().size(); i++){
+            seriesMap.put(this.simulationActuelle.getLastEtat().getVariableList().get(i).getName(), new XYChart.Series());
+            seriesMap.get(this.simulationActuelle.getLastEtat().getVariableList().get(i).getName()).setName(simulationActuelle.getLastEtat().getVariableList().get(i).getName());
+        }
     }
 
-    public void setDisableBoundaryControls(boolean doDisable){
+    public void setDisableBoundaryControls(boolean doDisable) {
         maxX.setDisable(doDisable);
         maxY.setDisable(doDisable);
-        maxAuto.setDisable(doDisable);
     }
 
-    public void setDisableSimulationControls(boolean doDisable){
+    public void setDisableSimulationControls(boolean doDisable) {
         bouttonArreter.setDisable(doDisable);
         bouttonDemarrer.setDisable(doDisable);
         bouttonModifier.setDisable(doDisable);
     }
 
-    public void setGraphBoundaries(Variable variable) {
+    public void setGraphBoundaries() {
         if (rangeStatique.isSelected()) {
-            if (!maxAuto.getText().isEmpty()) {
-                maxX.clear();
-                maxY.clear();
-                setAutoBoundaries(maxAuto.getText(), variable);
-                System.out.println("set to auto");
-            }else if (maxY.getText().isEmpty() && !maxX.getText().isEmpty() ) {
+            if (maxY.getText().isEmpty() && !maxX.getText().isEmpty()) {
                 setXBoundaries(maxX.getText());
                 yAxis.setAutoRanging(true);
                 System.out.println("set x static");
@@ -217,81 +272,57 @@ public class SimulateurController implements Initializable {
                 setXBoundaries(maxX.getText());
                 setYBoundaries(maxY.getText());
                 System.out.println("set x y static");
-            }else if(maxX.getText().isEmpty() && maxY.getText().isEmpty() && maxAuto.getText().isEmpty()){
+            } else if (maxX.getText().isEmpty() && maxY.getText().isEmpty() && maxAuto.getText().isEmpty()) {
                 rangeStatique.setSelected(false);
                 xAxis.setAutoRanging(true);
                 yAxis.setAutoRanging(true);
             }
-        }else{
+        } else {
             xAxis.setAutoRanging(true);
             yAxis.setAutoRanging(true);
         }
     }
 
-    public void setXBoundaries(String textFieldInput){
-        if (validDouble(textFieldInput)){
+    public void setXBoundaries(String textFieldInput) {
+        if (validDouble(textFieldInput)) {
             double boundary = Double.parseDouble(textFieldInput);
             xAxis.setAutoRanging(false);
             xAxis.setUpperBound(boundary);
             xAxis.setTickUnit(boundary / 20);
-        }else {
+        } else {
             xAxis.setAutoRanging(true);
             System.out.println("axe des X en mode automatique");
         }
     }
 
-    public void setYBoundaries(String textFieldInput){
-        if (validDouble(textFieldInput)){
+    public void setYBoundaries(String textFieldInput) {
+        if (validDouble(textFieldInput)) {
             double boundary = Double.parseDouble(textFieldInput);
             yAxis.setAutoRanging(false);
             yAxis.setUpperBound(boundary);
             yAxis.setTickUnit(boundary / 20);
-        }else{
+        } else {
             System.out.println("axe des Y en mode automatique");
         }
     }
 
-    public void setAutoBoundaries(String textFieldInput, Variable variable){
-        if (validDouble(textFieldInput)) {
-            double t = Integer.parseInt(textFieldInput);
-            Variable variableCopy = new Variable(variable);
-            double boundary = 0;
-            for (int i = 0; i < simulation.getFucntionListFromVariable(variableCopy).size(); i++) {
-                Function fct = simulation.getFucntionListFromVariable(variableCopy).get(i);
-                Variable nextStepVar = new Variable(variable);
-                for (int j = 0; j <= t; j++) {
-                    boundary = fct.calculate(new Argument(variableCopy.getName(), nextStepVar.getValue()));
-                    nextStepVar.setValue(boundary);
-                }
-            }
-            xAxis.setAutoRanging(false);
-            yAxis.setAutoRanging(false);
-            xAxis.setUpperBound(t);
-            yAxis.setUpperBound(boundary);
-            yAxis.setTickUnit(boundary / 20);
-        }else {
-            xAxis.setAutoRanging(true);
-            yAxis.setAutoRanging(true);
-            System.out.println("");
+
+    public boolean validDouble(String string) {
+        boolean isValid = false;
+        try {
+            Double.parseDouble(string);
+            isValid = true;
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-    }
 
-    public boolean validDouble(String string){
-       boolean isValid = false;
-       try{
-           Double.parseDouble(string);
-           isValid = true;
-
-       }catch (Exception e){
-           System.out.println(e.getMessage());
-       }
-
-       return isValid;
+        return isValid;
     }
 
     public void modifierVariable(ActionEvent actionEvent) throws IOException {
-        if(listViewVariablesSimulateur.getSelectionModel().getSelectedItem() != null){
-            Variable variable = DialoguesUtils.dialogueVariable(true, listViewVariablesSimulateur.getSelectionModel().getSelectedItem());
+        if (getVariableIndex() != null) {
+            Variable variable = DialoguesUtils.dialogueVariable(true, getVariableIndex());
             listViewVariablesSimulateur.refresh();
         }
 
@@ -302,19 +333,19 @@ public class SimulateurController implements Initializable {
         private HBox hBox;
         private Label label;
 
-        public varCell(){
+        public varCell() {
             label = new Label();
             hBox = new HBox(label);
         }
 
         @Override
-        public void updateItem(Variable variable, boolean empty){
-            super.updateItem(variable,empty);
+        public void updateItem(Variable variable, boolean empty) {
+            super.updateItem(variable, empty);
 
-            if(variable == null || empty){
+            if (variable == null || empty) {
                 setItem(null);
                 setGraphic(null);
-            }else{
+            } else {
                 stringAAfficher = variable.getName();
                 setItem(variable);
                 label.setText(stringAAfficher + " = " + variable.getValue());

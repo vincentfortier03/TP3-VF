@@ -10,13 +10,11 @@ public class SimulationService extends Service<Etat> {
 
     private Etat etatActuel;
 
-    private Etat etatInitial;
-
     private long dt;
 
-    private double dtTheorique;
+    private double intervalTheorique;
 
-    private double t = 0;
+    private float t = 0;
 
     private boolean stop = false;
 
@@ -27,11 +25,12 @@ public class SimulationService extends Service<Etat> {
     private Variable curentlySimulatedVariable;
 
 
-    public SimulationService(String name, Etat etatInitial) {
+    public SimulationService(String name, Etat etatInitial, float tempsInitial, double intervalTheorique) {
         super();
-        this.simulation = new Simulation("name", etatInitial);
-        this.etatInitial = simulation.getHistorique(simulation.getHistorique().size() - 1);
+        this.simulation = new Simulation(name, etatInitial);
         setEtatActuel(etatInitial);
+        this.t = tempsInitial;
+        this.intervalTheorique = intervalTheorique;
 
         setValueBoundary(Double.MAX_VALUE);
         setTimeBoundary(Double.MAX_VALUE);
@@ -55,17 +54,23 @@ public class SimulationService extends Service<Etat> {
         this.etatActuel = etatActuel;
     }
 
-    public void setIntervalTheorique(int dth) {
-        this.dtTheorique = dth;
+    public double getIntervalTheorique() {
+       return this.intervalTheorique;
     }
 
-    public double getT() {
-        return this.t / 1000;
+    public double getTSecondes() {
+        return this.t/1000;
     }
-
+    public float getT() {
+        return this.t;
+    }
 
     public void setStop() {
         this.stop = !stop;
+    }
+
+    public boolean getStop() {
+        return this.stop;
     }
 
     public void setValueBoundary(double valueBoundary) {
@@ -88,11 +93,11 @@ public class SimulationService extends Service<Etat> {
             long oldT = System.currentTimeMillis();
 
             updateValue(etatActuel);
-            while (!stop && !isCancelled() && 0 <= etatActuel.getVariable(curentlySimulatedVariable.getName()).getValue() && etatActuel.getVariable(curentlySimulatedVariable.getName()).getValue() <= valueBoundary && t/1000 <= timeBoundary) {
-                Thread.sleep((long) (dtTheorique * 1000));
+            while (!stop && !isCancelled() && 0 <= etatActuel.getVariable(curentlySimulatedVariable.getName()).getValue() && etatActuel.getVariable(curentlySimulatedVariable.getName()).getValue() <= valueBoundary && (double)(t/(float)1000) <= timeBoundary) {
+                Thread.sleep((long) (intervalTheorique * 1000));
 
                 dt = System.currentTimeMillis() - oldT;
-                t += dt;
+                t += (float)dt;
                 nouvelEtat = simulation.simulateStep(t/1000, (double) dt, etatActuel);
 
                 etatActuel = nouvelEtat;

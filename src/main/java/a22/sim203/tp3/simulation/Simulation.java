@@ -127,26 +127,27 @@ public class Simulation implements Serializable {
         this.historique = historique;
     }
 
-    public Etat simulateStep(double t, double dt, Etat etatActuel) {
+    public Etat simulateStep(float t, double dt, Etat etatActuel) {
         Etat nouvelEtat = new Etat(etatActuel);//msd depp copy requise
 
-        ajouteDansHistorique(etatActuel);
-
         for (int i = 0; i < etatActuel.getVariableList().size(); i++) {
+            double valueVar = 0;
             for (Equation equationOld : etatActuel.getVariableList().get(i).getEquationsCollection()) {
                 Function fctActuelle = convertEquationToFunction(equationOld);
-                Argument[] listValuesArguments = new Argument[fctActuelle.getArgumentsNumber()];
+                Argument[] listArgumentsFctActuelle = new Argument[fctActuelle.getArgumentsNumber()];
+
                 for (int j = 0; j < fctActuelle.getArgumentsNumber(); j++) {
                     if(fctActuelle.getArgument(j).getArgumentName().equals("t")){
-                        listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), t);
+                        listArgumentsFctActuelle[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), t);
                     }else{
-                        listValuesArguments[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
+                        listArgumentsFctActuelle[j] = new Argument(fctActuelle.getArgument(j).getArgumentName(), etatActuel.getVariable(fctActuelle.getArgument(j).getArgumentName()).getValue());
                     }
                 }
-                nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(fctActuelle.calculate(listValuesArguments));
+                valueVar += fctActuelle.calculate(listArgumentsFctActuelle);
             }
+            nouvelEtat.getVariable(etatActuel.getVariableList().get(i).getName()).setValue(valueVar);
         }
-
+        ajouteDansHistorique(etatActuel);
         return nouvelEtat;
     }
 }

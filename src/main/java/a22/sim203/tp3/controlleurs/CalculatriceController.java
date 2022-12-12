@@ -1,9 +1,6 @@
 package a22.sim203.tp3.controlleurs;
 
 import a22.sim203.tp3.simulation.*;
-import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,18 +17,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import javafx.util.Callback;
 import org.mariuszgromada.math.mxparser.Expression;
 import a22.sim203.tp3.*;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.function.Predicate;
-
-import static a22.sim203.tp3.SimulationApp.loadFXML;
 
 /**
  * Classe controller pour le fichier FXML Calculatrice.fxml
@@ -801,8 +792,8 @@ public class CalculatriceController implements Initializable {
         SimulateurController controller = load.getController();
 
         if(!listViewEquations.getSelectionModel().isEmpty()){
-            controller.setSimulation(listViewSimulations.getSelectionModel().getSelectedItem());
-            controller.setEquation(listViewEquations.getSelectionModel().getSelectedItem());
+            controller.setSimulationActuelle(listViewSimulations.getSelectionModel().getSelectedItem());
+            controller.setEquationSelectionnee(listViewEquations.getSelectionModel().getSelectedItem());
 
             simStage.setScene(new Scene(root));
             simStage.show();
