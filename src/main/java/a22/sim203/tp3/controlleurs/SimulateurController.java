@@ -149,9 +149,6 @@ public class SimulateurController implements Initializable {
      */
     private double intervalTheorique;
 
-    //f(t,y)=(-9.8(0.1)(t^2)/2)+y
-    //f(x)=x/1.5
-
     /**
      * Méthode initialisant certaines variables de la classe
      * @param location  The location used to resolve relative paths for the root object, or

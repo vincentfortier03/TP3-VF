@@ -121,7 +121,7 @@ public class DialoguesUtils {
      */
     public static void alerteAide() {
         Alert alerteAide = new Alert(Alert.AlertType.INFORMATION);
-        alerteAide.setTitle("Calculateur avancé");
+        alerteAide.setTitle("Simulateur d'équation - TP3");
         alerteAide.setHeaderText("Sim203");
         alerteAide.setContentText("Cours de programmation 203 en SIM \nCégep Limoilou A22\npar: Vincent Fortier");
         alerteAide.showAndWait();
